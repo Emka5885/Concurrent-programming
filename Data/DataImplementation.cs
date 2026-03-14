@@ -8,7 +8,6 @@
 //
 //_____________________________________________________________________________________________________________________________________
 
-using System;
 using System.Diagnostics;
 
 namespace TP.ConcurrentProgramming.Data
@@ -36,12 +35,11 @@ namespace TP.ConcurrentProgramming.Data
       for (int i = 0; i < numberOfBalls; i++)
       {
         Vector startingPosition = new(random.Next(100, 400 - 100), random.Next(100, 400 - 100));
-        Ball newBall = new(startingPosition, startingPosition);
+        Ball newBall = new(startingPosition, startingPosition, 20);
         upperLayerHandler(startingPosition, newBall);
         BallsList.Add(newBall);
       }
     }
-
     #endregion DataAbstractAPI
 
     #region IDisposable
@@ -79,10 +77,37 @@ namespace TP.ConcurrentProgramming.Data
     private Random RandomGenerator = new();
     private List<Ball> BallsList = [];
 
+    public override double Width { get; } = 420;
+    public override double Height { get; } = 400;
+
+
     private void Move(object? x)
     {
       foreach (Ball item in BallsList)
-        item.Move(new Vector((RandomGenerator.NextDouble() - 0.5) * 10, (RandomGenerator.NextDouble() - 0.5) * 10));
+      {
+        double deltaX = (RandomGenerator.NextDouble() - 0.5) * 10;
+        double deltaY = (RandomGenerator.NextDouble() - 0.5) * 10;
+
+        double newX = item.Position.x + deltaX;
+        double newY = item.Position.y + deltaY;
+
+        if (newX < 0)
+          newX = 0;
+
+        if (newY < 0)
+          newY = 0;
+
+        if (newX > Width - item.Diameter - 4 * 2)
+          newX = Width - item.Diameter - 4 * 2;
+
+        if (newY > Height - item.Diameter - 4 * 2)
+          newY = Height - item.Diameter - 4 * 2;
+
+        double newDeltaX = newX - item.Position.x;
+        double newDeltaY = newY - item.Position.y;
+
+        item.Move(new Vector(newDeltaX, newDeltaY));
+      }
     }
 
     #endregion private

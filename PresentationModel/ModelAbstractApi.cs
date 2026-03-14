@@ -44,6 +44,9 @@ namespace TP.ConcurrentProgramming.Presentation.Model
 
     private static Lazy<ModelAbstractApi> modelInstance = new Lazy<ModelAbstractApi>(() => new ModelImplementation());
 
+    public abstract double Width { get; }
+    public abstract double Height { get; }
+
     #endregion private
   }
 }

@@ -39,6 +39,9 @@ namespace TP.ConcurrentProgramming.BusinessLogic
 
     private static Lazy<BusinessLogicAbstractAPI> modelInstance = new Lazy<BusinessLogicAbstractAPI>(() => new BusinessLogicImplementation());
 
+    public abstract double Width { get; }
+    public abstract double Height { get; }
+
     #endregion private
   }
   /// <summary>

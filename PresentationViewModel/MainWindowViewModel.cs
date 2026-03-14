@@ -9,6 +9,8 @@
 
 using System;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
+using System.Reflection;
 using TP.ConcurrentProgramming.Presentation.Model;
 using TP.ConcurrentProgramming.Presentation.ViewModel.MVVMLight;
 using ModelIBall = TP.ConcurrentProgramming.Presentation.Model.IBall;
@@ -78,6 +80,9 @@ namespace TP.ConcurrentProgramming.Presentation.ViewModel
     private IDisposable Observer = null;
     private ModelAbstractApi ModelLayer;
     private bool Disposed = false;
+
+    public double Width => ModelLayer.Width;
+    public double Height => ModelLayer.Height;
 
     #endregion private
   }

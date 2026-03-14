@@ -54,6 +54,9 @@ namespace TP.ConcurrentProgramming.BusinessLogic
 
     private readonly UnderneathLayerAPI layerBellow;
 
+    public override double Width => layerBellow.Width;
+    public override double Height => layerBellow.Height;
+
     #endregion private
 
     #region TestingInfrastructure
