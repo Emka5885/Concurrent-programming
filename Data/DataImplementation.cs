@@ -25,8 +25,13 @@ namespace TP.ConcurrentProgramming.Data
       Random random = new Random();
       for (int i = 0; i < numberOfBalls; i++)
       {
-        double x = random.NextDouble() * (Width - 20);
-        double y = random.NextDouble() * (Height - 20);
+        double diameter = 20.0;
+
+        double maxX = Width - diameter - 2 * 4.0;
+        double maxY = Height - diameter - 2 * 4.0;
+
+        double x = random.NextDouble() * maxX;
+        double y = random.NextDouble() * maxY;
         Vector startingPosition = new(x, y);
 
         double velocityX = (random.NextDouble() - 0.5) * 10;
