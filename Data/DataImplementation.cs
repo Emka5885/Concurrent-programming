@@ -22,7 +22,9 @@ namespace TP.ConcurrentProgramming.Data
         throw new ObjectDisposedException(nameof(DataImplementation));
       if (upperLayerHandler == null)
         throw new ArgumentNullException(nameof(upperLayerHandler));
+     
       Random random = new Random();
+      
       for (int i = 0; i < numberOfBalls; i++)
       {
         double diameter = 20.0;
@@ -42,7 +44,7 @@ namespace TP.ConcurrentProgramming.Data
 
         Vector startingVelocity = new(velocityX, velocityY);
 
-        Ball newBall = new(startingPosition, startingVelocity, 20);
+        Ball newBall = new(startingPosition, startingVelocity, diameter);
         BallsList.Add(newBall);
         upperLayerHandler(startingPosition, newBall);
 
