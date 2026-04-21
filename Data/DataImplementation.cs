@@ -14,15 +14,6 @@ namespace TP.ConcurrentProgramming.Data
 {
   internal class DataImplementation : DataAbstractAPI
   {
-    #region ctor
-
-    public DataImplementation()
-    {
-      MoveTimer = new Timer(Move, null, TimeSpan.Zero, TimeSpan.FromMilliseconds(100));
-    }
-
-    #endregion ctor
-
     #region DataAbstractAPI
 
     public override void Start(int numberOfBalls, Action<IVector, IBall> upperLayerHandler)
@@ -45,7 +36,10 @@ namespace TP.ConcurrentProgramming.Data
         Vector startingVelocity = new(velocityX, velocityY);
 
         Ball newBall = new(startingPosition, startingVelocity, 20);
+        BallsList.Add(newBall);
         upperLayerHandler(startingPosition, newBall);
+
+        newBall.Start(Width, Height);
         BallsList.Add(newBall);
       }
     }
@@ -89,40 +83,6 @@ namespace TP.ConcurrentProgramming.Data
     public override double Width { get; } = 420;
     public override double Height { get; } = 400;
 
-
-    private void Move(object? x)
-    {
-      foreach (Ball item in BallsList)
-      {
-        double deltaX = item.Velocity.x;
-        double deltaY = item.Velocity.y;
-
-        double nextX = item.Position.x + deltaX;
-        double nextY = item.Position.y + deltaY;
-
-        double maxX = Width - item.Diameter - 4 * 2;
-        double maxY = Height - item.Diameter - 4 * 2;
-
-        if (nextX < 0 || nextX > maxX)
-        {
-          deltaX = -deltaX;
-          item.Velocity = new Vector(deltaX, deltaY);
-          nextX = item.Position.x + deltaX;
-        }
-
-        if (nextY < 0 || nextY > maxY)
-        {
-          deltaY = -deltaY;
-          item.Velocity = new Vector(deltaX, deltaY);
-          nextY = item.Position.y + deltaY;
-        }
-
-        double newDeltaX = nextX - item.Position.x;
-        double newDeltaY = nextY - item.Position.y;
-
-        item.Move(new Vector(newDeltaX, newDeltaY));
-      }
-    }
 
     #endregion private
 
