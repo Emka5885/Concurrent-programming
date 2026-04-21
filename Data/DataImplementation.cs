@@ -35,7 +35,16 @@ namespace TP.ConcurrentProgramming.Data
       for (int i = 0; i < numberOfBalls; i++)
       {
         Vector startingPosition = new(random.Next(100, 400 - 100), random.Next(100, 400 - 100));
-        Ball newBall = new(startingPosition, startingPosition, 20);
+     
+        double velocityX = (random.NextDouble() - 0.5) * 10;
+        double velocityY = (random.NextDouble() - 0.5) * 10;
+
+        if (Math.Abs(velocityX) < 0.1) velocityX = 2.0;
+        if (Math.Abs(velocityY) < 0.1) velocityY = 2.0;
+
+        Vector startingVelocity = new(velocityX, velocityY);
+
+        Ball newBall = new(startingPosition, startingVelocity, 20);
         upperLayerHandler(startingPosition, newBall);
         BallsList.Add(newBall);
       }
@@ -85,26 +94,31 @@ namespace TP.ConcurrentProgramming.Data
     {
       foreach (Ball item in BallsList)
       {
-        double deltaX = (RandomGenerator.NextDouble() - 0.5) * 10;
-        double deltaY = (RandomGenerator.NextDouble() - 0.5) * 10;
+        double deltaX = item.Velocity.x;
+        double deltaY = item.Velocity.y;
 
-        double newX = item.Position.x + deltaX;
-        double newY = item.Position.y + deltaY;
+        double nextX = item.Position.x + deltaX;
+        double nextY = item.Position.y + deltaY;
 
-        if (newX < 0)
-          newX = 0;
+        double maxX = Width - item.Diameter - 4 * 2;
+        double maxY = Height - item.Diameter - 4 * 2;
 
-        if (newY < 0)
-          newY = 0;
+        if (nextX < 0 || nextX > maxX)
+        {
+          deltaX = -deltaX;
+          item.Velocity = new Vector(deltaX, deltaY);
+          nextX = item.Position.x + deltaX;
+        }
 
-        if (newX > Width - item.Diameter - 4 * 2)
-          newX = Width - item.Diameter - 4 * 2;
+        if (nextY < 0 || nextY > maxY)
+        {
+          deltaY = -deltaY;
+          item.Velocity = new Vector(deltaX, deltaY);
+          nextY = item.Position.y + deltaY;
+        }
 
-        if (newY > Height - item.Diameter - 4 * 2)
-          newY = Height - item.Diameter - 4 * 2;
-
-        double newDeltaX = newX - item.Position.x;
-        double newDeltaY = newY - item.Position.y;
+        double newDeltaX = nextX - item.Position.x;
+        double newDeltaY = nextY - item.Position.y;
 
         item.Move(new Vector(newDeltaX, newDeltaY));
       }
