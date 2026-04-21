@@ -64,6 +64,8 @@ namespace TP.ConcurrentProgramming.BusinessLogic.Test
 
     private class DataLayerConstructorFixcure : Data.DataAbstractAPI
     {
+      public override double Width => 400.0;
+      public override double Height => 420.0;
       public override void Dispose()
       { }
 
@@ -75,6 +77,8 @@ namespace TP.ConcurrentProgramming.BusinessLogic.Test
 
     private class DataLayerDisposeFixcure : Data.DataAbstractAPI
     {
+      public override double Width => 400.0;
+      public override double Height => 420.0;
       internal bool Disposed = false;
 
       public override void Dispose()
@@ -90,6 +94,8 @@ namespace TP.ConcurrentProgramming.BusinessLogic.Test
 
     private class DataLayerStartFixcure : Data.DataAbstractAPI
     {
+      public override double Width => 400.0;
+      public override double Height => 420.0;
       internal bool StartCalled = false;
       internal int NumberOfBallseCreated = -1;
 

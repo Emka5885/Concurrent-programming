@@ -57,6 +57,8 @@ namespace TP.ConcurrentProgramming.Presentation.Model.Test
 
       internal bool Disposed = false;
       internal int NumberOfBalls = 0;
+      public override double Width => 400.0;
+      public override double Height => 420.0;
 
       #endregion testing instrumentation
 

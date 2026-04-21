@@ -28,6 +28,7 @@ namespace TP.ConcurrentProgramming.Presentation.ViewModel
     {
       ModelLayer = modelLayerAPI == null ? ModelAbstractApi.CreateModel() : modelLayerAPI;
       Observer = ModelLayer.Subscribe<ModelIBall>(x => Balls.Add(x));
+      StartBallsCommand = new RelayCommand(() => Start(BallCount), () => !Disposed && !Started && BallCount > 0);
     }
 
     #endregion ctor
@@ -38,11 +39,33 @@ namespace TP.ConcurrentProgramming.Presentation.ViewModel
     {
       if (Disposed)
         throw new ObjectDisposedException(nameof(MainWindowViewModel));
+
+      if (Started || numberOfBalls <= 0)
+        return;
+
+      Balls.Clear();
       ModelLayer.Start(numberOfBalls);
-      Observer.Dispose();
+      Started = true;
+      StartBallsCommand.RaiseCanExecuteChanged();
     }
 
     public ObservableCollection<ModelIBall> Balls { get; } = new ObservableCollection<ModelIBall>();
+
+    public int BallCount
+    {
+      get => ballCount;
+      set
+      {
+        if (ballCount == value)
+          return;
+
+        ballCount = value;
+        RaisePropertyChanged();
+        StartBallsCommand.RaiseCanExecuteChanged();
+      }
+    }
+
+    public RelayCommand StartCommand => StartBallsCommand;
 
     #endregion public API
 
@@ -80,6 +103,9 @@ namespace TP.ConcurrentProgramming.Presentation.ViewModel
     private IDisposable Observer = null;
     private ModelAbstractApi ModelLayer;
     private bool Disposed = false;
+    private readonly RelayCommand StartBallsCommand;
+    private int ballCount = 8;
+    private bool Started = false;
 
     public double Width => ModelLayer.Width;
     public double Height => ModelLayer.Height;

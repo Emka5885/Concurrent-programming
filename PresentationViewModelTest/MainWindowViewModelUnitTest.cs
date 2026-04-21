@@ -66,6 +66,9 @@ namespace TP.ConcurrentProgramming.Presentation.ViewModel.Test
       internal int Started = 0;
       internal int Subscribed = 0;
 
+      public override double Width => 400.0;
+      public override double Height => 420.0;
+
       #endregion Test
 
       #region ModelAbstractApi
@@ -104,6 +107,9 @@ namespace TP.ConcurrentProgramming.Presentation.ViewModel.Test
       #region Testing indicators
 
       internal bool Disposed = false;
+
+      public override double Width => 400.0;
+      public override double Height => 420.0;
 
       #endregion Testing indicators
 

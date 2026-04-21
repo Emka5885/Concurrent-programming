@@ -9,24 +9,46 @@
     <Window.DataContext>
         <vm:MainWindowViewModel />
     </Window.DataContext>
-    <Border BorderThickness="4" BorderBrush="Green" Height="{Binding Height}" Width="{Binding Width}">
-        <ItemsControl ItemsSource="{Binding Balls}">
-            <ItemsControl.ItemsPanel>
-                <ItemsPanelTemplate>
-                    <Canvas />
-                </ItemsPanelTemplate>
-            </ItemsControl.ItemsPanel>
-            <ItemsControl.ItemTemplate>
-                <DataTemplate>
-                    <Ellipse Width= "{Binding Diameter}" Height="{Binding Diameter}" Fill="Blue" />
-                </DataTemplate>
-            </ItemsControl.ItemTemplate>
-            <ItemsControl.ItemContainerStyle>
-                <Style TargetType="ContentPresenter">
-                    <Setter Property="Canvas.Top" Value="{Binding Top}" />
-                    <Setter Property="Canvas.Left" Value="{Binding Left}" />
-                </Style>
-            </ItemsControl.ItemContainerStyle>
-        </ItemsControl>
-    </Border>
+    <Grid Margin="10">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="10"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <StackPanel Grid.Row="0" Orientation="Horizontal">
+            <TextBlock Text="Liczba kulek:" VerticalAlignment="Center" Margin="0,0,8,0"/>
+            <TextBox Width="80"
+                 Text="{Binding BallCount, UpdateSourceTrigger=PropertyChanged}"
+                 Margin="0,0,10,0"/>
+            <Button Content="Start"
+                Width="100"
+                Command="{Binding StartCommand}"/>
+        </StackPanel>
+
+        <Border Grid.Row="2"
+            BorderThickness="4"
+            BorderBrush="Green"
+            Height="{Binding Height}"
+            Width="{Binding Width}">
+            <ItemsControl ItemsSource="{Binding Balls}">
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <Canvas />
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <Ellipse Width="{Binding Diameter}" Height="{Binding Diameter}" Fill="Blue" />
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+                <ItemsControl.ItemContainerStyle>
+                    <Style TargetType="ContentPresenter">
+                        <Setter Property="Canvas.Top" Value="{Binding Top}" />
+                        <Setter Property="Canvas.Left" Value="{Binding Left}" />
+                    </Style>
+                </ItemsControl.ItemContainerStyle>
+            </ItemsControl>
+        </Border>
+    </Grid>
 </Window>
