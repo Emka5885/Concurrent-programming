@@ -25,8 +25,10 @@ namespace TP.ConcurrentProgramming.Data
       Random random = new Random();
       for (int i = 0; i < numberOfBalls; i++)
       {
-        Vector startingPosition = new(random.Next(100, 400 - 100), random.Next(100, 400 - 100));
-     
+        double x = random.NextDouble() * (Width - 20);
+        double y = random.NextDouble() * (Height - 20);
+        Vector startingPosition = new(x, y);
+
         double velocityX = (random.NextDouble() - 0.5) * 10;
         double velocityY = (random.NextDouble() - 0.5) * 10;
 
@@ -53,9 +55,14 @@ namespace TP.ConcurrentProgramming.Data
       {
         if (disposing)
         {
-          MoveTimer.Dispose();
+          foreach (var ball in BallsList)
+          {
+            ball.Stop();
+          }
+
           BallsList.Clear();
         }
+
         Disposed = true;
       }
       else
