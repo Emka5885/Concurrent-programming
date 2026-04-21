@@ -47,7 +47,6 @@ namespace TP.ConcurrentProgramming.Data
         upperLayerHandler(startingPosition, newBall);
 
         newBall.Start(Width, Height);
-        BallsList.Add(newBall);
       }
     }
     #endregion DataAbstractAPI
@@ -88,8 +87,6 @@ namespace TP.ConcurrentProgramming.Data
     //private bool disposedValue;
     private bool Disposed = false;
 
-    private readonly Timer MoveTimer;
-    private Random RandomGenerator = new();
     private List<Ball> BallsList = [];
 
     public override double Width { get; } = 420;
