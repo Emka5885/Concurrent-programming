@@ -91,6 +91,8 @@ namespace TP.ConcurrentProgramming.BusinessLogic.Test
         set => throw new NotImplementedException();
       }
 
+      public double Diameter => 20.0;
+
       public event EventHandler<Data.IVector>? NewPositionNotification;
 
       internal void Fire(double x, double y)

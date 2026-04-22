@@ -45,6 +45,7 @@ namespace TP.ConcurrentProgramming.Presentation.Model.Test
     private class BusinessLogicIBallFixture : BusinessLogic.IBall
     {
       public event EventHandler<IPosition>? NewPositionNotification;
+      public double Diameter => 20.0;
 
       public void Dispose()
       {

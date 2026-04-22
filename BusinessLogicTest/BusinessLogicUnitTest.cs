@@ -237,6 +237,8 @@ namespace TP.ConcurrentProgramming.BusinessLogic.Test
         set { }
       }
 
+      public double Diameter => 20.0;
+
       public event EventHandler<IVector>? NewPositionNotification;
 
       internal void FirePosition(double x, double y)

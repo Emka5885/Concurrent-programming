@@ -64,5 +64,6 @@ namespace TP.ConcurrentProgramming.BusinessLogic
   public interface IBall 
   {
     event EventHandler<IPosition> NewPositionNotification;
+    double Diameter { get; }
   }
 }
