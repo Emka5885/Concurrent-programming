@@ -16,7 +16,7 @@ namespace TP.ConcurrentProgramming.BusinessLogic.Test
   public class BusinessLogicImplementationUnitTest
   {
     [TestMethod]
-    public void ConstructorTestMethod()
+    public void ConstructorTestMethod() // czy obiekt BL startuje w poprawnym stanie ?
     {
       using (BusinessLogicImplementation newInstance = new(new DataLayerConstructorFixture()))
       {
@@ -27,7 +27,7 @@ namespace TP.ConcurrentProgramming.BusinessLogic.Test
     }
 
     [TestMethod]
-    public void DisposeTestMethod()
+    public void DisposeTestMethod() // czy logic i data się zamykają ?
     {
       DataLayerDisposeFixture dataLayerFixture = new DataLayerDisposeFixture();
       BusinessLogicImplementation newInstance = new(dataLayerFixture);
@@ -49,7 +49,7 @@ namespace TP.ConcurrentProgramming.BusinessLogic.Test
     }
 
     [TestMethod]
-    public void StartTestMethod()
+    public void StartTestMethod() // czy logic wywołuje Data.Start i przekazuje liczbę kulek ?
     {
       DataLayerStartFixture dataLayerFixture = new();
 
@@ -74,7 +74,7 @@ namespace TP.ConcurrentProgramming.BusinessLogic.Test
     }
 
     [TestMethod]
-    public void StartSubscribesToDataBallPositionEvents()
+    public void StartSubscribesToDataBallPositionEvents() // czy Logic nasłuchuje eventów z Data ?
     {
       DataLayerEventFixture dataLayer = new DataLayerEventFixture();
       using BusinessLogicImplementation logic = new(dataLayer);
@@ -100,7 +100,7 @@ namespace TP.ConcurrentProgramming.BusinessLogic.Test
     }
 
     [TestMethod]
-    public void StartCallbackReceivesBusinessLogicPositionNotDataVector()
+    public void StartCallbackReceivesBusinessLogicPositionNotDataVector() // czy Presentation dostaje typ BL, nie Data ?
     {
       DataLayerStartFixture dataLayer = new DataLayerStartFixture();
       using BusinessLogicImplementation logic = new(dataLayer);
@@ -123,7 +123,7 @@ namespace TP.ConcurrentProgramming.BusinessLogic.Test
     }
 
     [TestMethod]
-    public void StartMapsXAndYCoordinatesCorrectly()
+    public void StartMapsXAndYCoordinatesCorrectly() // czy x i y są poprawnie przepisane ?
     {
       DataLayerCoordinateFixture dataLayer = new DataLayerCoordinateFixture();
       using BusinessLogicImplementation logic = new(dataLayer);
@@ -138,7 +138,7 @@ namespace TP.ConcurrentProgramming.BusinessLogic.Test
     }
 
     [TestMethod]
-    public void StartPassesExactBallCountToDataLayer()
+    public void StartPassesExactBallCountToDataLayer() // czy liczba kulek nie zmienia się po drodze ?
     {
       DataLayerStartFixture dataLayer = new();
       using BusinessLogicImplementation logic = new(dataLayer);

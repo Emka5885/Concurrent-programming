@@ -16,7 +16,7 @@ namespace TP.ConcurrentProgramming.Data.Test
   public class DataImplementationUnitTest
   {
     [TestMethod]
-    public void ConstructorTestMethod()
+    public void ConstructorTestMethod() // czy lista kulek istnieje i jest pusta na start ?
     {
       using (DataImplementation newInstance = new DataImplementation())
       {
@@ -31,7 +31,7 @@ namespace TP.ConcurrentProgramming.Data.Test
     }
 
     [TestMethod]
-    public void DisposeTestMethod()
+    public void DisposeTestMethod() // czy obiekt się poprawnie zamyka ?   czy nie można go używać po Dispose() ?
     {
       DataImplementation newInstance = new DataImplementation();
 
@@ -55,7 +55,7 @@ namespace TP.ConcurrentProgramming.Data.Test
     }
 
     [TestMethod]
-    public void StartTestMethod()
+    public void StartTestMethod() // czy tworzy się poprawna liczba kulek ?   czy callback jest wywoływany ?
     {
       using (DataImplementation newInstance = new DataImplementation())
       {
@@ -78,7 +78,7 @@ namespace TP.ConcurrentProgramming.Data.Test
     }
 
     [TestMethod]
-    public void StartingPositionsWithinUpperBounds()
+    public void StartingPositionsWithinUpperBounds() // ! czy kulki startują w środku planszy ?
     {
       using DataImplementation impl = new DataImplementation();
 
@@ -97,7 +97,7 @@ namespace TP.ConcurrentProgramming.Data.Test
     }
 
     [TestMethod]
-    public void StartCreatesExactlyNBalls()
+    public void StartCreatesExactlyNBalls() // ! czy nie dodajemy kulek podwójnie ?
     {
       using DataImplementation impl = new DataImplementation();
       const int n = 5;
@@ -110,7 +110,7 @@ namespace TP.ConcurrentProgramming.Data.Test
     }
 
     [TestMethod]
-    public void StartWithZeroBallsCreatesEmptyList()
+    public void StartWithZeroBallsCreatesEmptyList() // ! czy 0 kulek stworzy pustą listę ?
     {
       using DataImplementation impl = new DataImplementation();
 
@@ -122,7 +122,7 @@ namespace TP.ConcurrentProgramming.Data.Test
     }
 
     [TestMethod]
-    public void StartThrowsWhenHandlerIsNull()
+    public void StartThrowsWhenHandlerIsNull() // czy jak null to wyjątek ?
     {
       using DataImplementation impl = new DataImplementation();
 

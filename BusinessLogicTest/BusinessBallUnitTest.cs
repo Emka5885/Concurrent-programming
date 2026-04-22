@@ -14,7 +14,7 @@ namespace TP.ConcurrentProgramming.BusinessLogic.Test
   public class BallUnitTest
   {
     [TestMethod]
-    public void MoveTestMethod()
+    public void MoveTestMethod() // czy event z Data trafia do BusinessLogic ?
     {
       DataBallFixture dataBallFixture = new DataBallFixture();
       Ball newInstance = new(dataBallFixture);
@@ -33,7 +33,7 @@ namespace TP.ConcurrentProgramming.BusinessLogic.Test
     }
 
     [TestMethod]
-    public void PositionNotificationTranslatesDataVectorToBusinessLogicPosition()
+    public void PositionNotificationTranslatesDataVectorToBusinessLogicPosition() // ! czy: Data.Vector -> BusinessLogic.Position ?
     {
       DataBallFixture dataBall = new DataBallFixture();
       Ball businessBall = new Ball(dataBall);
@@ -51,7 +51,7 @@ namespace TP.ConcurrentProgramming.BusinessLogic.Test
     }
 
     [TestMethod]
-    public void EventSenderIsBusinessLogicBallNotDataBall()
+    public void EventSenderIsBusinessLogicBallNotDataBall() // ! czy nadawca to kulka logic, a nie data ?
     {
       DataBallFixture dataBall = new DataBallFixture();
       Ball businessBall = new Ball(dataBall);
@@ -68,7 +68,7 @@ namespace TP.ConcurrentProgramming.BusinessLogic.Test
     }
 
     [TestMethod]
-    public void NotificationFiredExactlyOncePerMove()
+    public void NotificationFiredExactlyOncePerMove() // czy event nie jest wywoływany kilka razy więcej niż zakładamy ?
     {
       DataBallFixture dataBall = new DataBallFixture();
       Ball businessBall = new Ball(dataBall);

@@ -14,7 +14,7 @@ namespace TP.ConcurrentProgramming.Data.Test
   public class BallUnitTest
   {
     [TestMethod]
-    public void ConstructorTestMethod()
+    public void ConstructorTestMethod() // czy kulka się poprawnie tworzy?
     {
       Vector testingVector = new Vector(0.0, 0.0);
       Ball newInstance = new(testingVector, testingVector, 20.0);
@@ -23,7 +23,7 @@ namespace TP.ConcurrentProgramming.Data.Test
     }
 
     [TestMethod]
-    public void MoveTestMethod()
+    public void MoveTestMethod() // czy po ruchu kulki wywołuje się event ?
     {
       Vector initialPosition = new(10.0, 10.0);
       Ball newInstance = new(initialPosition, new Vector(0.0, 0.0), 20.0);
@@ -44,7 +44,7 @@ namespace TP.ConcurrentProgramming.Data.Test
     }
 
     [TestMethod]
-    public void MoveAccumulatesPositionAcrossMultipleCalls()
+    public void MoveAccumulatesPositionAcrossMultipleCalls() // ! czy kolejne ruchy sumują się - a nie nadpisują ?
     {
       Ball ball = new Ball(new Vector(10.0, 20.0), new Vector(0.0, 0.0), 20.0);
 
@@ -60,7 +60,7 @@ namespace TP.ConcurrentProgramming.Data.Test
     }
 
     [TestMethod]
-    public void MoveNotificationSenderIsTheBallItself()
+    public void MoveNotificationSenderIsTheBallItself() // czy event mówi "to JA jestem senderem" ?
     {
       Ball ball = new Ball(new Vector(5.0, 5.0), new Vector(0.0, 0.0), 20.0);
 
