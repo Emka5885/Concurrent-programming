@@ -41,6 +41,8 @@ namespace TP.ConcurrentProgramming.Data
 
     public void Start(double width, double height)
     {
+      ValidateVelocity(width, height);
+
       isRunning = true;
 
       Task.Run(async () =>
@@ -56,6 +58,19 @@ namespace TP.ConcurrentProgramming.Data
     public void Stop()
     {
       isRunning = false;
+    }
+
+    private void ValidateVelocity(double width, double height)
+    {
+      double maxX = width - Diameter - 4 * 2;
+      double maxY = height - Diameter - 4 * 2;
+
+      if (Math.Abs(Velocity.x) > maxX || Math.Abs(Velocity.y) > maxY)
+      {
+        throw new ArgumentOutOfRangeException(
+          nameof(Velocity),
+          "Velocity cannot be greater than available table area.");
+      }
     }
 
     private void MoveBall(double width, double height)

@@ -72,5 +72,22 @@ namespace TP.ConcurrentProgramming.Data.Test
       Assert.IsNotNull(capturedSender);
       Assert.AreSame(ball, capturedSender);
     }
+
+    [TestMethod]
+    public void StartThrowsExceptionWhenVelocityIsGreaterThanTableSize() // prędkość w 1 kroku, nie może być większa niż rozmiar planszy
+    {
+      double tableWidth = 100.0;
+      double tableHeight = 100.0;
+
+      Ball ball = new Ball(
+        new Vector(10.0, 10.0),
+        new Vector(150.0, 20.0),
+        20.0);
+
+      Assert.ThrowsException<ArgumentOutOfRangeException>(() =>
+      {
+        ball.Start(tableWidth, tableHeight);
+      });
+    }
   }
 }
