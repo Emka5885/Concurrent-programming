@@ -26,9 +26,15 @@ namespace TP.ConcurrentProgramming.Presentation.Model
 
   public abstract class ModelAbstractApi : IObservable<IBall>, IDisposable
   {
+
     public static ModelAbstractApi CreateModel()
     {
       return modelInstance.Value;
+    }
+
+    public static ModelAbstractApi CreateNewModel()
+    {
+      return new ModelImplementation(BusinessLogic.BusinessLogicAbstractAPI.CreateNewBusinessLogicLayer());
     }
 
     public abstract void Start(int numberOfBalls);

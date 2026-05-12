@@ -26,9 +26,10 @@ namespace TP.ConcurrentProgramming.Presentation.ViewModel
 
     internal MainWindowViewModel(ModelAbstractApi modelLayerAPI)
     {
-      ModelLayer = modelLayerAPI == null ? ModelAbstractApi.CreateModel() : modelLayerAPI;
+      ModelLayer = modelLayerAPI == null ? ModelAbstractApi.CreateNewModel() : modelLayerAPI;
       Observer = ModelLayer.Subscribe<ModelIBall>(x => Balls.Add(x));
       StartBallsCommand = new RelayCommand(() => Start(BallCount), () => !Disposed && !Started && BallCount > 0);
+      ResetBallsCommand = new RelayCommand(Reset, () => !Disposed && Started);
     }
 
     #endregion ctor
@@ -46,7 +47,32 @@ namespace TP.ConcurrentProgramming.Presentation.ViewModel
       Balls.Clear();
       ModelLayer.Start(numberOfBalls);
       Started = true;
+      SimulationStatusText = "Running";
+
       StartBallsCommand.RaiseCanExecuteChanged();
+      ResetBallsCommand.RaiseCanExecuteChanged();
+    }
+
+    public void Reset()
+    {
+      if (Disposed)
+        throw new ObjectDisposedException(nameof(MainWindowViewModel));
+
+      Observer.Dispose();
+      ModelLayer.Dispose();
+
+      Balls.Clear();
+
+      ModelLayer = ModelAbstractApi.CreateNewModel();
+      Observer = ModelLayer.Subscribe<ModelIBall>(x => Balls.Add(x));
+
+      Started = false;
+
+      StartBallsCommand.RaiseCanExecuteChanged();
+      ResetBallsCommand.RaiseCanExecuteChanged();
+
+      RaisePropertyChanged(nameof(Width));
+      RaisePropertyChanged(nameof(Height));
     }
 
     public void UpdateBallPositionsForRendering()
@@ -76,7 +102,61 @@ namespace TP.ConcurrentProgramming.Presentation.ViewModel
       }
     }
 
+    public string TotalMomentumText
+    {
+      get => totalMomentumText;
+      private set
+      {
+        if (totalMomentumText == value)
+          return;
+
+        totalMomentumText = value;
+        RaisePropertyChanged();
+      }
+    }
+
+    public string TotalKineticEnergyText
+    {
+      get => totalKineticEnergyText;
+      private set
+      {
+        if (totalKineticEnergyText == value)
+          return;
+
+        totalKineticEnergyText = value;
+        RaisePropertyChanged();
+      }
+    }
+
+    public string CollisionCountText
+    {
+      get => collisionCountText;
+      private set
+      {
+        if (collisionCountText == value)
+          return;
+
+        collisionCountText = value;
+        RaisePropertyChanged();
+      }
+    }
+
+    public string SimulationStatusText
+    {
+      get => simulationStatusText;
+      private set
+      {
+        if (simulationStatusText == value)
+          return;
+
+        simulationStatusText = value;
+        RaisePropertyChanged();
+      }
+    }
+
     public RelayCommand StartCommand => StartBallsCommand;
+
+    public RelayCommand ResetCommand => ResetBallsCommand;
 
     #endregion public API
 
@@ -115,8 +195,15 @@ namespace TP.ConcurrentProgramming.Presentation.ViewModel
     private ModelAbstractApi ModelLayer;
     private bool Disposed = false;
     private readonly RelayCommand StartBallsCommand;
+    private readonly RelayCommand ResetBallsCommand;
+
     private int ballCount = 8;
     private bool Started = false;
+
+    private string totalMomentumText = "—";
+    private string totalKineticEnergyText = "—";
+    private string collisionCountText = "—";
+    private string simulationStatusText = "Ready";
 
     public double Width => ModelLayer.Width;
     public double Height => ModelLayer.Height;

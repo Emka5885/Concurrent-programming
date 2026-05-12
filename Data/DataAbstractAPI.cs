@@ -19,6 +19,11 @@ namespace TP.ConcurrentProgramming.Data
       return modelInstance.Value;
     }
 
+    public static DataAbstractAPI CreateNewDataLayer()
+    {
+      return new DataImplementation();
+    }
+
     #endregion Layer Factory
 
     #region public API

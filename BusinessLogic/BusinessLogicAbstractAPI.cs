@@ -19,6 +19,11 @@ namespace TP.ConcurrentProgramming.BusinessLogic
       return modelInstance.Value;
     }
 
+    public static BusinessLogicAbstractAPI CreateNewBusinessLogicLayer()
+    {
+      return new BusinessLogicImplementation(Data.DataAbstractAPI.CreateNewDataLayer());
+    }
+
     #endregion Layer Factory
 
     #region Layer API

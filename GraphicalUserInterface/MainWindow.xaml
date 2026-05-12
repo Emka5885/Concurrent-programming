@@ -16,14 +16,49 @@
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
-        <StackPanel Grid.Row="0" Orientation="Horizontal">
-            <TextBlock Text="Liczba kulek:" VerticalAlignment="Center" Margin="0,0,8,0"/>
-            <TextBox Width="80"
+        <StackPanel Grid.Row="0" Orientation="Vertical">
+
+            <StackPanel Orientation="Horizontal">
+                <TextBlock Text="Liczba kulek:"
+                   VerticalAlignment="Center"
+                   Margin="0,0,8,0"/>
+
+                <TextBox Width="80"
                  Text="{Binding BallCount, UpdateSourceTrigger=PropertyChanged}"
                  Margin="0,0,10,0"/>
-            <Button Content="Start"
+
+                <Button Content="Start"
                 Width="100"
+                Margin="0,0,8,0"
                 Command="{Binding StartCommand}"/>
+
+                <Button Content="Reset"
+                Width="100"
+                Command="{Binding ResetCommand}"/>
+            </StackPanel>
+
+            <UniformGrid Columns="4" Margin="0,8,0,0">
+                <StackPanel Margin="0,0,12,0">
+                    <TextBlock Text="Status" FontWeight="Bold"/>
+                    <TextBlock Text="{Binding SimulationStatusText}"/>
+                </StackPanel>
+
+                <StackPanel Margin="0,0,12,0">
+                    <TextBlock Text="Pęd sumaryczny" FontWeight="Bold"/>
+                    <TextBlock Text="{Binding TotalMomentumText}"/>
+                </StackPanel>
+
+                <StackPanel Margin="0,0,12,0">
+                    <TextBlock Text="Energia kinetyczna" FontWeight="Bold"/>
+                    <TextBlock Text="{Binding TotalKineticEnergyText}"/>
+                </StackPanel>
+
+                <StackPanel Margin="0,0,12,0">
+                    <TextBlock Text="Liczba kolizji" FontWeight="Bold"/>
+                    <TextBlock Text="{Binding CollisionCountText}"/>
+                </StackPanel>
+            </UniformGrid>
+
         </StackPanel>
 
         <Border Grid.Row="2"
