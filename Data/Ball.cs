@@ -89,7 +89,7 @@ namespace TP.ConcurrentProgramming.Data
       cts = null;
     }
 
-    private void MoveBall(double width, double height)
+    internal void MoveBall(double width, double height)
     {
       double deltaX = Velocity.x;
       double deltaY = Velocity.y;
