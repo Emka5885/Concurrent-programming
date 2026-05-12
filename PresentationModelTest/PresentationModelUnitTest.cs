@@ -60,6 +60,10 @@ namespace TP.ConcurrentProgramming.Presentation.Model.Test
       public override double Width => 400.0;
       public override double Height => 420.0;
 
+      public override IPosition TotalMomentum => new PositionFixture(0.0, 0.0);
+
+      public override double TotalKineticEnergy => 0.0;
+
       #endregion testing instrumentation
 
       #region BusinessLogicAbstractAPI
@@ -73,6 +77,18 @@ namespace TP.ConcurrentProgramming.Presentation.Model.Test
       {
         NumberOfBalls = numberOfBalls;
         Assert.IsNotNull(upperLayerHandler);
+      }
+
+      private class PositionFixture : IPosition
+      {
+        public PositionFixture(double x, double y)
+        {
+          this.x = x;
+          this.y = y;
+        }
+
+        public double x { get; init; }
+        public double y { get; init; }
       }
 
       #endregion BusinessLogicAbstractAPI

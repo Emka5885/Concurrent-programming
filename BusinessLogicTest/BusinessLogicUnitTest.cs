@@ -153,6 +153,10 @@ namespace TP.ConcurrentProgramming.BusinessLogic.Test
       public override double Width => 400.0;
       public override double Height => 420.0;
 
+      public override IVector TotalMomentum => new VectorFixture(0.0, 0.0);
+
+      public override double TotalKineticEnergy => 0.0;
+
       public override void Dispose() { }
 
       public override void Start(int numberOfBalls, Action<IVector, Data.IBall> upperLayerHandler)
@@ -163,6 +167,10 @@ namespace TP.ConcurrentProgramming.BusinessLogic.Test
     {
       public override double Width => 400.0;
       public override double Height => 420.0;
+
+      public override IVector TotalMomentum => new VectorFixture(0.0, 0.0);
+
+      public override double TotalKineticEnergy => 0.0;
 
       internal bool Disposed = false;
 
@@ -176,6 +184,10 @@ namespace TP.ConcurrentProgramming.BusinessLogic.Test
     {
       public override double Width => 400.0;
       public override double Height => 420.0;
+
+      public override IVector TotalMomentum => new VectorFixture(0.0, 0.0);
+
+      public override double TotalKineticEnergy => 0.0;
 
       internal bool StartCalled = false;
       internal int NumberOfBallsCreated = -1;
@@ -195,6 +207,10 @@ namespace TP.ConcurrentProgramming.BusinessLogic.Test
       public override double Width => 400.0;
       public override double Height => 420.0;
 
+      public override IVector TotalMomentum => new VectorFixture(0.0, 0.0);
+
+      public override double TotalKineticEnergy => 0.0;
+
       public override void Dispose() { }
 
       public override void Start(int numberOfBalls, Action<IVector, Data.IBall> upperLayerHandler)
@@ -207,6 +223,10 @@ namespace TP.ConcurrentProgramming.BusinessLogic.Test
     {
       public override double Width => 400.0;
       public override double Height => 420.0;
+
+      public override IVector TotalMomentum => new VectorFixture(0.0, 0.0);
+
+      public override double TotalKineticEnergy => 0.0;
 
       private readonly List<DataBallFixture> balls = new();
 

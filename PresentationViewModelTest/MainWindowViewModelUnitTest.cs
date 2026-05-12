@@ -69,6 +69,12 @@ namespace TP.ConcurrentProgramming.Presentation.ViewModel.Test
       public override double Width => 400.0;
       public override double Height => 420.0;
 
+      public override double TotalMomentumX => 0.0;
+
+      public override double TotalMomentumY => 0.0;
+
+      public override double TotalKineticEnergy => 0.0;
+
       #endregion Test
 
       #region ModelAbstractApi
@@ -110,6 +116,12 @@ namespace TP.ConcurrentProgramming.Presentation.ViewModel.Test
 
       public override double Width => 400.0;
       public override double Height => 420.0;
+
+      public override double TotalMomentumX => 0.0;
+
+      public override double TotalMomentumY => 0.0;
+
+      public override double TotalKineticEnergy => 0.0;
 
       #endregion Testing indicators
 
