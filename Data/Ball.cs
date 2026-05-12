@@ -1,13 +1,4 @@
-﻿//____________________________________________________________________________________________________________________________________
-//
-//  Copyright (C) 2024, Mariusz Postol LODZ POLAND.
-//
-//  To be in touch join the community by pressing the `Watch` button and get started commenting using the discussion panel at
-//
-//  https://github.com/mpostol/TP/discussions/182
-//
-//_____________________________________________________________________________________________________________________________________
-
+﻿using System.Diagnostics;
 
 namespace TP.ConcurrentProgramming.Data
 {
@@ -18,129 +9,122 @@ namespace TP.ConcurrentProgramming.Data
     internal Ball(Vector initialPosition, Vector initialVelocity, double diameter)
     {
       position = initialPosition;
-      velocity = initialVelocity;
+      Velocity = initialVelocity;
       this.diameter = diameter;
     }
 
-    #endregion ctor
+    #endregion
 
     #region IBall
 
     public event EventHandler<IVector>? NewPositionNotification;
-
-    private Vector velocity;
-
-    public IVector Velocity
-    {
-      get
-      {
-        lock (ballLock)
-        {
-          return velocity;
-        }
-      }
-      set
-      {
-        lock (ballLock)
-        {
-          velocity = new Vector(value.x, value.y);
-        }
-      }
-    }
-
-    public IVector Position
-    {
-      get
-      {
-        lock (ballLock)
-        {
-          return position;
-        }
-      }
-    }
+    public IVector Velocity { get; set; }
+    public IVector Position => position;
     public double Diameter => diameter;
 
-    #endregion IBall
+    #endregion
 
     #region private
 
     private Vector position;
     private readonly double diameter;
+    private CancellationTokenSource? cts;
 
-    private readonly object ballLock = new object();
+    private const int TargetIntervalMs = 16;
+    private const long MaxCumulativeLatencyMs = 500;
 
-    private void ValidateVelocity(double width, double height)
+    public void Start(double width, double height)
     {
+      cts = new CancellationTokenSource();
+      CancellationToken token = cts.Token;
+
+      Task.Run(async () =>
+      {
+        // Stopwatch wysoka rozdzielczość
+        Stopwatch sw = Stopwatch.StartNew();
+        int tickNumber = 0;
+
+        while (!token.IsCancellationRequested)
+        {
+          tickNumber++;
+
+          // Kiedy powinien nastąpić ten tick (w ms od startu)
+          long expectedMs = (long)tickNumber * TargetIntervalMs;
+
+          MoveBall(width, height);
+
+          long nowMs = sw.ElapsedMilliseconds;
+          long waitMs = expectedMs - nowMs;
+
+          // Łączne spóźnienie względem harmonogramu
+          long latency = nowMs - expectedMs;
+          if (latency > MaxCumulativeLatencyMs)
+          {
+            // Narastające opóźnienie przekroczyło próg — resetuj
+            sw.Restart();
+            tickNumber = 0;
+            // Tu można np. wywołać zdarzenie błędu
+          }
+
+          int delayMs = (int)Math.Max(1, waitMs);
+
+          try
+          {
+            // Token powoduje natychmiastowe przerwanie Delay przy Stop()
+            await Task.Delay(delayMs, token);
+          }
+          catch (OperationCanceledException)
+          {
+            // Normalne zakończenie — wyjdź z pętli
+            break;
+          }
+        }
+      });
+    }
+
+    public void Stop()
+    {
+      cts?.Cancel();
+      cts?.Dispose();
+      cts = null;
+    }
+
+    private void MoveBall(double width, double height)
+    {
+      double deltaX = Velocity.x;
+      double deltaY = Velocity.y;
+      double nextX = Position.x + deltaX;
+      double nextY = Position.y + deltaY;
       double maxX = width - Diameter - 4 * 2;
       double maxY = height - Diameter - 4 * 2;
 
-      IVector currentVelocity = Velocity;
-
-      if (Math.Abs(currentVelocity.x) > maxX || Math.Abs(currentVelocity.y) > maxY)
+      if (nextX < 0 || nextX > maxX)
       {
-        throw new ArgumentOutOfRangeException(
-          nameof(Velocity),
-          "Velocity cannot be greater than available table area.");
+        deltaX = -deltaX;
+        Velocity = new Vector(deltaX, deltaY);
+        nextX = Position.x + deltaX;
       }
-    }
-
-    internal void MoveBall(double width, double height)
-    {
-      ValidateVelocity(width, height);
-
-      Vector newPosition;
-
-      lock (ballLock)
+      if (nextY < 0 || nextY > maxY)
       {
-        double deltaX = velocity.x;
-        double deltaY = velocity.y;
-
-        double nextX = position.x + deltaX;
-        double nextY = position.y + deltaY;
-
-        double maxX = width - Diameter - 4 * 2;
-        double maxY = height - Diameter - 4 * 2;
-
-        if (nextX < 0 || nextX > maxX)
-        {
-          deltaX = -deltaX;
-          nextX = position.x + deltaX;
-        }
-
-        if (nextY < 0 || nextY > maxY)
-        {
-          deltaY = -deltaY;
-          nextY = position.y + deltaY;
-        }
-
-        velocity = new Vector(deltaX, deltaY);
-        position = new Vector(nextX, nextY);
-
-        newPosition = position;
+        deltaY = -deltaY;
+        Velocity = new Vector(deltaX, deltaY);
+        nextY = Position.y + deltaY;
       }
 
-      RaiseNewPositionChangeNotification(newPosition);
+      Move(new Vector(nextX - Position.x, nextY - Position.y));
     }
 
-
-    private void RaiseNewPositionChangeNotification(IVector newPosition)
+    private void RaiseNewPositionChangeNotification()
     {
-      NewPositionNotification?.Invoke(this, newPosition);
+      NewPositionNotification?.Invoke(this, position);
     }
 
     internal void Move(Vector delta)
     {
-      Vector newPosition;
-
-      lock (ballLock)
-      {
-        position = new Vector(position.x + delta.x, position.y + delta.y);
-        newPosition = position;
-      }
-
-      RaiseNewPositionChangeNotification(newPosition);
+      position = new Vector(position.x + delta.x, position.y + delta.y);
+      RaiseNewPositionChangeNotification();
     }
 
-    #endregion private
+    #endregion
   }
 }
