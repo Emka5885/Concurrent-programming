@@ -105,7 +105,8 @@ namespace TP.ConcurrentProgramming.Data
       {
         if (ReferenceEquals(this, other))
           continue;
-
+        if (GetHashCode() > other.GetHashCode())
+          continue;
 
         double dx = other.position.x - position.x;
         double dy = other.position.y - position.y;
@@ -114,34 +115,45 @@ namespace TP.ConcurrentProgramming.Data
 
         if (distanceSq < radii * radii)
         {
-          double normal = double.Sqrt(dx * dx + dy * dy);
+          double distance = Math.Sqrt(distanceSq);
 
-          double penetration = radii - double.Sqrt(distanceSq);
+          if (distance == 0)
+            continue;
 
-          double contactX = position.x + normal * (Diameter / 2.0) - penetration * 0.5;
-          double contactY = position.y + normal * (Diameter / 2.0) - penetration * 0.5;
+          double nx = dx / distance;
+          double ny = dy / distance;
 
-          double relativeVelocityX = Velocity.x - other.Velocity.x;
-          double relativeVelocityY = Velocity.y - other.Velocity.y;
-          double dot = relativeVelocityX * dx + relativeVelocityY * dy;
-          double dotSquared = dot * dot;
+          double rvx = other.Velocity.x - Velocity.x;
+          double rvy = other.Velocity.y - Velocity.y;
 
-          if (dotSquared > 0)
-          {
-            double collisionScale = dot / distanceSq;
-            double collisionX = dx * collisionScale;
-            double collisionY = dy * collisionScale;
-            Velocity = new Vector(Velocity.x - collisionX, Velocity.y - collisionY);
-            other.Velocity = new Vector(other.Velocity.x + collisionX, other.Velocity.y + collisionY);
-          }
+          double velAlongNormal = rvx * nx + rvy * ny;
+
+          // jeśli się oddalają - ignoruj
+          if (velAlongNormal > 0)
+            continue;
+
+          double restitution = 1;
+
+          double impulse = -(1 + restitution) * velAlongNormal / 2.0;
+
+          double impulseX = impulse * nx;
+          double impulseY = impulse * ny;
+
+          Velocity = new Vector(
+              Velocity.x - impulseX,
+              Velocity.y - impulseY);
+
+          other.Velocity = new Vector(
+              other.Velocity.x + impulseX,
+              other.Velocity.y + impulseY);
+
+
+          double normal = Math.Sqrt(dx * dx + dy * dy);
+
+          double penetration = radii - distance;
 
           position = new Vector(position.x - penetration * (dx / normal) * 0.5, position.y - penetration * (dy / normal) * 0.5);
           other.position = new Vector(other.position.x + penetration * (dx / normal) * 0.5, other.position.y + penetration * (dy / normal) * 0.5);
-
-          RaiseNewPositionChangeNotification();
-          other.RaiseNewPositionChangeNotification();
-          
-
         }
       }
     }
