@@ -17,7 +17,7 @@ namespace TP.ConcurrentProgramming.Data.Test
     public void ConstructorTestMethod() // czy kulka się poprawnie tworzy?
     {
       Vector testingVector = new Vector(0.0, 0.0);
-      Ball newInstance = new(testingVector, testingVector, 20.0);
+      Ball newInstance = new(testingVector, testingVector, 20.0, null, null);
 
       Assert.IsNotNull(newInstance);
     }
@@ -26,7 +26,7 @@ namespace TP.ConcurrentProgramming.Data.Test
     public void MoveTestMethod() // czy po ruchu kulki wywołuje się event ?
     {
       Vector initialPosition = new(10.0, 10.0);
-      Ball newInstance = new(initialPosition, new Vector(0.0, 0.0), 20.0);
+      Ball newInstance = new(initialPosition, new Vector(0.0, 0.0), 20.0, null, null);
       IVector currentPosition = new Vector(0.0, 0.0);
       int numberOfCallBackCalled = 0;
 
@@ -46,7 +46,7 @@ namespace TP.ConcurrentProgramming.Data.Test
     [TestMethod]
     public void MoveAccumulatesPositionAcrossMultipleCalls() // ! czy kolejne ruchy sumują się - a nie nadpisują ?
     {
-      Ball ball = new Ball(new Vector(10.0, 20.0), new Vector(0.0, 0.0), 20.0);
+      Ball ball = new Ball(new Vector(10.0, 20.0), new Vector(0.0, 0.0), 20.0, null, null);
 
       IVector? lastPosition = null;
       ball.NewPositionNotification += (_, pos) => lastPosition = pos;
@@ -62,7 +62,7 @@ namespace TP.ConcurrentProgramming.Data.Test
     [TestMethod]
     public void MoveNotificationSenderIsTheBallItself() // czy event mówi "to JA jestem senderem" ?
     {
-      Ball ball = new Ball(new Vector(5.0, 5.0), new Vector(0.0, 0.0), 20.0);
+      Ball ball = new Ball(new Vector(5.0, 5.0), new Vector(0.0, 0.0), 20.0, null, null);
 
       object? capturedSender = null;
       ball.NewPositionNotification += (sender, _) => capturedSender = sender;
@@ -82,7 +82,7 @@ namespace TP.ConcurrentProgramming.Data.Test
       Ball ball = new Ball(
         new Vector(10.0, 10.0),
         new Vector(150.0, 20.0),
-        20.0);
+        20.0, null, null);
 
       Assert.ThrowsException<ArgumentOutOfRangeException>(() =>
       {
