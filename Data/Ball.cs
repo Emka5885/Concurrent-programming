@@ -8,6 +8,7 @@
 //
 //_____________________________________________________________________________________________________________________________________
 
+
 namespace TP.ConcurrentProgramming.Data
 {
   internal class Ball : IBall
@@ -17,7 +18,7 @@ namespace TP.ConcurrentProgramming.Data
     internal Ball(Vector initialPosition, Vector initialVelocity, double diameter)
     {
       position = initialPosition;
-      Velocity = initialVelocity;
+      velocity = initialVelocity;
       this.diameter = diameter;
     }
 
@@ -27,45 +28,55 @@ namespace TP.ConcurrentProgramming.Data
 
     public event EventHandler<IVector>? NewPositionNotification;
 
-    public IVector Velocity { get; set; }
-    public IVector Position => position;
+    private Vector velocity;
+
+    public IVector Velocity
+    {
+      get
+      {
+        lock (ballLock)
+        {
+          return velocity;
+        }
+      }
+      set
+      {
+        lock (ballLock)
+        {
+          velocity = new Vector(value.x, value.y);
+        }
+      }
+    }
+
+    public IVector Position
+    {
+      get
+      {
+        lock (ballLock)
+        {
+          return position;
+        }
+      }
+    }
     public double Diameter => diameter;
 
     #endregion IBall
 
     #region private
 
-    private bool isRunning = false;
     private Vector position;
     private readonly double diameter;
 
-    public void Start(double width, double height)
-    {
-      ValidateVelocity(width, height);
-
-      isRunning = true;
-
-      Task.Run(async () =>
-      {
-        while (isRunning)
-        {
-          MoveBall(width, height);
-          await Task.Delay(30);
-        }
-      });
-    }
-
-    public void Stop()
-    {
-      isRunning = false;
-    }
+    private readonly object ballLock = new object();
 
     private void ValidateVelocity(double width, double height)
     {
       double maxX = width - Diameter - 4 * 2;
       double maxY = height - Diameter - 4 * 2;
 
-      if (Math.Abs(Velocity.x) > maxX || Math.Abs(Velocity.y) > maxY)
+      IVector currentVelocity = Velocity;
+
+      if (Math.Abs(currentVelocity.x) > maxX || Math.Abs(currentVelocity.y) > maxY)
       {
         throw new ArgumentOutOfRangeException(
           nameof(Velocity),
@@ -73,45 +84,61 @@ namespace TP.ConcurrentProgramming.Data
       }
     }
 
-    private void MoveBall(double width, double height)
+    internal void MoveBall(double width, double height)
     {
-      double deltaX = Velocity.x;
-      double deltaY = Velocity.y;
+      ValidateVelocity(width, height);
 
-      double nextX = Position.x + deltaX;
-      double nextY = Position.y + deltaY;
+      Vector newPosition;
 
-      double maxX = width - Diameter - 4 * 2;
-      double maxY = height - Diameter - 4 * 2;
-
-      if (nextX < 0 || nextX > maxX)
+      lock (ballLock)
       {
-        deltaX = -deltaX;
-        Velocity = new Vector(deltaX, deltaY);
-        nextX = Position.x + deltaX;
+        double deltaX = velocity.x;
+        double deltaY = velocity.y;
+
+        double nextX = position.x + deltaX;
+        double nextY = position.y + deltaY;
+
+        double maxX = width - Diameter - 4 * 2;
+        double maxY = height - Diameter - 4 * 2;
+
+        if (nextX < 0 || nextX > maxX)
+        {
+          deltaX = -deltaX;
+          nextX = position.x + deltaX;
+        }
+
+        if (nextY < 0 || nextY > maxY)
+        {
+          deltaY = -deltaY;
+          nextY = position.y + deltaY;
+        }
+
+        velocity = new Vector(deltaX, deltaY);
+        position = new Vector(nextX, nextY);
+
+        newPosition = position;
       }
 
-      if (nextY < 0 || nextY > maxY)
-      {
-        deltaY = -deltaY;
-        Velocity = new Vector(deltaX, deltaY);
-        nextY = Position.y + deltaY;
-      }
-
-      Move(new Vector(nextX - Position.x, nextY - Position.y));
+      RaiseNewPositionChangeNotification(newPosition);
     }
 
 
-    private void RaiseNewPositionChangeNotification()
+    private void RaiseNewPositionChangeNotification(IVector newPosition)
     {
-      NewPositionNotification?.Invoke(this, position);
+      NewPositionNotification?.Invoke(this, newPosition);
     }
 
     internal void Move(Vector delta)
     {
-      position = new Vector(position.x + delta.x, position.y + delta.y);
+      Vector newPosition;
 
-      RaiseNewPositionChangeNotification();
+      lock (ballLock)
+      {
+        position = new Vector(position.x + delta.x, position.y + delta.y);
+        newPosition = position;
+      }
+
+      RaiseNewPositionChangeNotification(newPosition);
     }
 
     #endregion private

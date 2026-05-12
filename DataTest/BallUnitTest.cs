@@ -86,7 +86,7 @@ namespace TP.ConcurrentProgramming.Data.Test
 
       Assert.ThrowsException<ArgumentOutOfRangeException>(() =>
       {
-        ball.Start(tableWidth, tableHeight);
+        ball.MoveBall(tableWidth, tableHeight);
       });
     }
   }

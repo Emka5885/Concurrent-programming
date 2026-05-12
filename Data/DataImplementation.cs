@@ -45,11 +45,16 @@ namespace TP.ConcurrentProgramming.Data
         Vector startingVelocity = new(velocityX, velocityY);
 
         Ball newBall = new(startingPosition, startingVelocity, diameter);
-        BallsList.Add(newBall);
-        upperLayerHandler(startingPosition, newBall);
 
-        newBall.Start(Width, Height);
+        lock (ballsListLock)
+        {
+          BallsList.Add(newBall);
+        }
+
+        upperLayerHandler(startingPosition, newBall);
       }
+
+      StartSimulationLoop();
     }
     #endregion DataAbstractAPI
 
@@ -61,12 +66,26 @@ namespace TP.ConcurrentProgramming.Data
       {
         if (disposing)
         {
-          foreach (var ball in BallsList)
+          simulationCancellation?.Cancel();
+
+          try
           {
-            ball.Stop();
+            simulationTask?.Wait(500);
+          }
+          catch (AggregateException)
+          {
+            // Task może zostać przerwany przez anulowanie tokenu.
+            // Normalne przy zamykaniu
           }
 
-          BallsList.Clear();
+          lock (ballsListLock)
+          {
+            BallsList.Clear();
+          }
+
+          simulationCancellation?.Dispose();
+          simulationCancellation = null;
+          simulationTask = null;
         }
 
         Disposed = true;
@@ -82,6 +101,51 @@ namespace TP.ConcurrentProgramming.Data
       GC.SuppressFinalize(this);
     }
 
+    private void StartSimulationLoop()
+    {
+      if (simulationTask != null && !simulationTask.IsCompleted)
+        throw new InvalidOperationException("Simulation is already running.");
+
+      simulationCancellation = new CancellationTokenSource();
+      CancellationToken token = simulationCancellation.Token;
+
+      simulationTask = Task.Run(async () =>
+      {
+        const double targetFrameTimeMs = 30.0;
+
+        Stopwatch stopwatch = Stopwatch.StartNew();
+        double nextFrameTimeMs = stopwatch.Elapsed.TotalMilliseconds;
+
+        while (!token.IsCancellationRequested)
+        {
+          List<Ball> ballsSnapshot;
+
+          lock (ballsListLock)
+          {
+            ballsSnapshot = BallsList.ToList();
+          }
+
+          foreach (Ball ball in ballsSnapshot)
+          {
+            ball.MoveBall(Width, Height);
+          }
+
+          nextFrameTimeMs += targetFrameTimeMs;
+
+          double delayMs = nextFrameTimeMs - stopwatch.Elapsed.TotalMilliseconds;
+
+          if (delayMs > 0)
+          {
+            await Task.Delay((int)delayMs, token);
+          }
+          else
+          {
+            nextFrameTimeMs = stopwatch.Elapsed.TotalMilliseconds;
+          }
+        }
+      }, token);
+    }
+
     #endregion IDisposable
 
     #region private
@@ -89,7 +153,11 @@ namespace TP.ConcurrentProgramming.Data
     //private bool disposedValue;
     private bool Disposed = false;
 
-    private List<Ball> BallsList = [];
+    private readonly List<Ball> BallsList = [];
+    private readonly object ballsListLock = new object();
+
+    private CancellationTokenSource? simulationCancellation;
+    private Task? simulationTask;
 
     public override double Width { get; } = 420;
     public override double Height { get; } = 400;
@@ -102,13 +170,19 @@ namespace TP.ConcurrentProgramming.Data
     [Conditional("DEBUG")]
     internal void CheckBallsList(Action<IEnumerable<IBall>> returnBallsList)
     {
-      returnBallsList(BallsList);
+      lock (ballsListLock)
+      {
+        returnBallsList(BallsList.ToList());
+      }
     }
 
     [Conditional("DEBUG")]
     internal void CheckNumberOfBalls(Action<int> returnNumberOfBalls)
     {
-      returnNumberOfBalls(BallsList.Count);
+      lock (ballsListLock)
+      {
+        returnNumberOfBalls(BallsList.Count);
+      }
     }
 
     [Conditional("DEBUG")]
