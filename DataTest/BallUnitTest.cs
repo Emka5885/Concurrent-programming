@@ -89,5 +89,143 @@ namespace TP.ConcurrentProgramming.Data.Test
         ball.ValidateVelocity(tableWidth, tableHeight);
       });
     }
+
+    [TestMethod]
+    public void CollisionExchangesVelocityBetweenTwoBalls()
+    {
+      object physicsLock = new();
+      List<Ball> balls = new();
+
+      Ball ballA = new Ball(
+          new Vector(0.0, 0.0),
+          new Vector(1.0, 0.0),
+          20.0,
+          balls,
+          physicsLock);
+
+      Ball ballB = new Ball(
+          new Vector(19.0, 0.0),
+          new Vector(-1.0, 0.0),
+          20.0,
+          balls,
+          physicsLock);
+
+      balls.Add(ballA);
+      balls.Add(ballB);
+
+      ballA.ResolveCollisions();
+
+      Assert.AreEqual(-1.0, ballA.Velocity.x, 1e-10);
+      Assert.AreEqual(1.0, ballB.Velocity.x, 1e-10);
+    }
+
+    [TestMethod]
+    public void BallsDoNotChangeVelocityWhenTheyDoNotCollide()
+    {
+      object physicsLock = new();
+      List<Ball> balls = new();
+
+      Ball ballA = new Ball(
+          new Vector(0.0, 0.0),
+          new Vector(1.0, 0.0),
+          20.0,
+          balls,
+          physicsLock);
+
+      Ball ballB = new Ball(
+          new Vector(100.0, 0.0),
+          new Vector(-1.0, 0.0),
+          20.0,
+          balls,
+          physicsLock);
+
+      balls.Add(ballA);
+      balls.Add(ballB);
+
+      ballA.ResolveCollisions();
+
+      Assert.AreEqual(1.0, ballA.Velocity.x, 1e-10);
+      Assert.AreEqual(-1.0, ballB.Velocity.x, 1e-10);
+    }
+
+    [TestMethod]
+    public void ThreeBallCollisionTransfersVelocity()
+    {
+      object physicsLock = new();
+      List<Ball> balls = new();
+
+      Ball ball1 = new Ball(
+          new Vector(0.0, 0.0),
+          new Vector(1.0, 0.0),
+          20.0,
+          balls,
+          physicsLock);
+
+      Ball ball2 = new Ball(
+          new Vector(19.0, 0.0),
+          new Vector(0.0, 0.0),
+          20.0,
+          balls,
+          physicsLock);
+
+      Ball ball3 = new Ball(
+          new Vector(38.0, 0.0),
+          new Vector(0.0, 0.0),
+          20.0,
+          balls,
+          physicsLock);
+
+      balls.Add(ball1);
+      balls.Add(ball2);
+      balls.Add(ball3);
+
+      for (int i = 0; i < 5; i++)
+      {
+        foreach (Ball ball in balls)
+        {
+          ball.ResolveCollisions();
+        }
+      }
+
+      Assert.IsTrue(ball3.Velocity.x > 0.5);
+      Assert.IsTrue(Math.Abs(ball1.Velocity.x) < 0.5);
+    }
+
+
+    [TestMethod]
+    public void CollisionDoesNotIncreaseTotalEnergy()
+    {
+      object physicsLock = new();
+      List<Ball> balls = new();
+
+      Ball ballA = new Ball(
+          new Vector(0.0, 0.0),
+          new Vector(1.0, 0.0),
+          20.0,
+          balls,
+          physicsLock);
+
+      Ball ballB = new Ball(
+          new Vector(19.0, 0.0),
+          new Vector(-1.0, 0.0),
+          20.0,
+          balls,
+          physicsLock);
+
+      balls.Add(ballA);
+      balls.Add(ballB);
+
+      double energyBefore =
+          ballA.Velocity.x * ballA.Velocity.x +
+          ballB.Velocity.x * ballB.Velocity.x;
+
+      ballA.ResolveCollisions();
+
+      double energyAfter =
+          ballA.Velocity.x * ballA.Velocity.x +
+          ballB.Velocity.x * ballB.Velocity.x;
+
+      Assert.AreEqual(energyBefore, energyAfter, 1e-10);
+    }
   }
 }

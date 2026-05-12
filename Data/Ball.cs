@@ -99,7 +99,7 @@ namespace TP.ConcurrentProgramming.Data
     }
 
 
-    private void ResolveCollisions()
+    internal void ResolveCollisions()
     {
       foreach (Ball other in allBalls)
       {
