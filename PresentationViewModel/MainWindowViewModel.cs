@@ -84,6 +84,17 @@ namespace TP.ConcurrentProgramming.Presentation.ViewModel
           frameUpdatableBall.UpdatePositionForRendering();
         }
       }
+
+      UpdateSimulationMetrics();
+    }
+
+    private void UpdateSimulationMetrics()
+    {
+      TotalMomentumText =
+        $"px = {ModelLayer.TotalMomentumX:0.00}, py = {ModelLayer.TotalMomentumY:0.00}";
+
+      TotalKineticEnergyText =
+        $"{ModelLayer.TotalKineticEnergy:0.00}";
     }
 
     public ObservableCollection<ModelIBall> Balls { get; } = new ObservableCollection<ModelIBall>();

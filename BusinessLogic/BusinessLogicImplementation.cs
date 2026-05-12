@@ -57,6 +57,17 @@ namespace TP.ConcurrentProgramming.BusinessLogic
     public override double Width => layerBellow.Width;
     public override double Height => layerBellow.Height;
 
+    public override IPosition TotalMomentum
+    {
+      get
+      {
+        Data.IVector totalMomentum = layerBellow.TotalMomentum;
+        return new Position(totalMomentum.x, totalMomentum.y);
+      }
+    }
+
+    public override double TotalKineticEnergy => layerBellow.TotalKineticEnergy;
+
     #endregion private
 
     #region TestingInfrastructure

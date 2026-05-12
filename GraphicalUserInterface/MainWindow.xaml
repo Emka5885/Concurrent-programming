@@ -52,11 +52,6 @@
                     <TextBlock Text="Energia kinetyczna" FontWeight="Bold"/>
                     <TextBlock Text="{Binding TotalKineticEnergyText}"/>
                 </StackPanel>
-
-                <StackPanel Margin="0,0,12,0">
-                    <TextBlock Text="Liczba kolizji" FontWeight="Bold"/>
-                    <TextBlock Text="{Binding CollisionCountText}"/>
-                </StackPanel>
             </UniformGrid>
 
         </StackPanel>

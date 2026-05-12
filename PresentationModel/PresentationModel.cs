@@ -15,9 +15,6 @@ using UnderneathLayerAPI = TP.ConcurrentProgramming.BusinessLogic.BusinessLogicA
 
 namespace TP.ConcurrentProgramming.Presentation.Model
 {
-  /// <summary>
-  /// Class Model - implements the <see cref="ModelAbstractApi" />
-  /// </summary>
   internal class ModelImplementation : ModelAbstractApi
   {
     internal ModelImplementation() : this(null)
@@ -65,6 +62,10 @@ namespace TP.ConcurrentProgramming.Presentation.Model
 
     public override double Width => layerBellow.Width;
     public override double Height => layerBellow.Height;
+
+    public override double TotalMomentumX => layerBellow.TotalMomentum.x;
+    public override double TotalMomentumY => layerBellow.TotalMomentum.y;
+    public override double TotalKineticEnergy => layerBellow.TotalKineticEnergy;
 
     private void StartHandler(BusinessLogic.IPosition position, BusinessLogic.IBall ball)
     {

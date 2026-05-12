@@ -58,6 +58,10 @@ namespace TP.ConcurrentProgramming.Presentation.Model
     public abstract double Width { get; }
     public abstract double Height { get; }
 
+    public abstract double TotalMomentumX { get; }
+    public abstract double TotalMomentumY { get; }
+    public abstract double TotalKineticEnergy { get; }
+
     #endregion private
   }
 }

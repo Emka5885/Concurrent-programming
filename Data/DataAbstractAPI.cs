@@ -45,19 +45,16 @@ namespace TP.ConcurrentProgramming.Data
     public abstract double Width { get; }
     public abstract double Height { get; }
 
+    public abstract IVector TotalMomentum { get; }
+    public abstract double TotalKineticEnergy { get; }
+
     #endregion private
   }
 
   public interface IVector
   {
-    /// <summary>
-    /// The X component of the vector.
-    /// </summary>
     double x { get; init; }
 
-    /// <summary>
-    /// The y component of the vector.
-    /// </summary>
     double y { get; init; }
   }
 

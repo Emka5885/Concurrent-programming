@@ -47,17 +47,12 @@ namespace TP.ConcurrentProgramming.BusinessLogic
     public abstract double Width { get; }
     public abstract double Height { get; }
 
+    public abstract IPosition TotalMomentum { get; }
+    public abstract double TotalKineticEnergy { get; }
+
     #endregion private
   }
-  /// <summary>
-  /// Immutable type representing table dimensions
-  /// </summary>
-  /// <param name="BallDimension"></param>
-  /// <param name="TableHeight"></param>
-  /// <param name="TableWidth"></param>
-  /// <remarks>
-  /// Must be abstract
-  /// </remarks>
+
   public record Dimensions(double BallDimension, double TableHeight, double TableWidth);
 
   public interface IPosition

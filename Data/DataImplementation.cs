@@ -45,7 +45,10 @@ namespace TP.ConcurrentProgramming.Data
         Vector startingVelocity = new(velocityX, velocityY);
 
         Ball newBall = new(startingPosition, startingVelocity, diameter, BallsList, physicLock);
-        BallsList.Add(newBall);
+        lock (ballsListLock)
+        {
+          BallsList.Add(newBall);
+        }
         upperLayerHandler(startingPosition, newBall);
       }
 
@@ -67,7 +70,10 @@ namespace TP.ConcurrentProgramming.Data
             ball.Stop();
           }
 
-          BallsList.Clear();
+          lock (ballsListLock)
+          {
+            BallsList.Clear();
+          }
         }
 
         Disposed = true;
@@ -87,13 +93,65 @@ namespace TP.ConcurrentProgramming.Data
 
     #region private
 
-    //private bool disposedValue;
     private bool Disposed = false;
 
     private List<Ball> BallsList = [];
+    private readonly object ballsListLock = new object();
 
     public override double Width { get; } = 420;
     public override double Height { get; } = 400;
+
+    public override IVector TotalMomentum
+    {
+      get
+      {
+        double totalX = 0.0;
+        double totalY = 0.0;
+
+        List<Ball> ballsSnapshot;
+
+        lock (ballsListLock)
+        {
+          ballsSnapshot = BallsList.ToList();
+        }
+
+        foreach (Ball ball in ballsSnapshot)
+        {
+          totalX += ball.Velocity.x;
+          totalY += ball.Velocity.y;
+        }
+
+        return new Vector(totalX, totalY);
+      }
+    }
+
+    public override double TotalKineticEnergy
+    {
+      get
+      {
+        double totalEnergy = 0.0;
+
+        List<Ball> ballsSnapshot;
+
+        lock (ballsListLock)
+        {
+          ballsSnapshot = BallsList.ToList();
+        }
+
+        foreach (Ball ball in ballsSnapshot)
+        {
+          double velocityX = ball.Velocity.x;
+          double velocityY = ball.Velocity.y;
+
+          double speedSquared = velocityX * velocityX + velocityY * velocityY;
+
+          // Gdy różne masy, tutaj trzeba będzie użyć ball.Mass
+          totalEnergy += 0.5 * speedSquared;
+        }
+
+        return totalEnergy;
+      }
+    }
 
     private readonly object physicLock = new();
 
