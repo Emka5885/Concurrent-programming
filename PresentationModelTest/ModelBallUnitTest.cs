@@ -9,6 +9,7 @@
 //_____________________________________________________________________________________________________________________________________
 
 using TP.ConcurrentProgramming.BusinessLogic;
+using TP.ConcurrentProgramming.Data;
 
 namespace TP.ConcurrentProgramming.Presentation.Model.Test
 {
@@ -45,12 +46,27 @@ namespace TP.ConcurrentProgramming.Presentation.Model.Test
     private class BusinessLogicIBallFixture : BusinessLogic.IBall
     {
       public event EventHandler<IPosition>? NewPositionNotification;
+
+      public IPosition Position { get; private set; } = new PositionFixture(0.0, 0.0);
+
       public double Diameter => 20.0;
 
       public void Dispose()
       {
         throw new NotImplementedException();
       }
+    }
+
+    private class PositionFixture : IPosition
+    {
+      internal PositionFixture(double x, double y)
+      {
+        this.x = x;
+        this.y = y;
+      }
+
+      public double x { get; init; }
+      public double y { get; init; }
     }
 
     #endregion testing instrumentation

@@ -231,6 +231,7 @@ namespace TP.ConcurrentProgramming.BusinessLogic.Test
 
     private class DataBallFixture : Data.IBall
     {
+      public Data.IVector Position { get; private set; } = new VectorFixture(0.0, 0.0);
       public IVector Velocity
       {
         get => new VectorFixture(0.0, 0.0);

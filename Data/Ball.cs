@@ -38,6 +38,8 @@ namespace TP.ConcurrentProgramming.Data
       cts = new CancellationTokenSource();
       CancellationToken token = cts.Token;
 
+      ValidateVelocity(width, height);
+
       Task.Run(async () =>
       {
         // Stopwatch wysoka rozdzielczość
@@ -112,6 +114,19 @@ namespace TP.ConcurrentProgramming.Data
       }
 
       Move(new Vector(nextX - Position.x, nextY - Position.y));
+    }
+
+    internal void ValidateVelocity(double width, double height)
+    {
+      double maxX = width - Diameter - 4 * 2;
+      double maxY = height - Diameter - 4 * 2;
+
+      if (Math.Abs(Velocity.x) > maxX || Math.Abs(Velocity.y) > maxY)
+      {
+        throw new ArgumentOutOfRangeException(
+          nameof(Velocity),
+          "Velocity cannot be greater than available table area.");
+      }
     }
 
     private void RaiseNewPositionChangeNotification()
