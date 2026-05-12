@@ -17,13 +17,13 @@ using LogicIBall = TP.ConcurrentProgramming.BusinessLogic.IBall;
 
 namespace TP.ConcurrentProgramming.Presentation.Model
 {
-  internal class ModelBall : IBall
+  internal class ModelBall : IBall, IFrameUpdatableBall
   {
     public ModelBall(double top, double left, LogicIBall underneathBall)
     {
       TopBackingField = top;
       LeftBackingField = left;
-      underneathBall.NewPositionNotification += NewPositionNotification;
+      this.underneathBall = underneathBall;
     }
 
     #region IBall
@@ -35,6 +35,7 @@ namespace TP.ConcurrentProgramming.Presentation.Model
       {
         if (TopBackingField == value)
           return;
+
         TopBackingField = value;
         RaisePropertyChanged();
       }
@@ -47,6 +48,7 @@ namespace TP.ConcurrentProgramming.Presentation.Model
       {
         if (LeftBackingField == value)
           return;
+
         LeftBackingField = value;
         RaisePropertyChanged();
       }
@@ -56,21 +58,30 @@ namespace TP.ConcurrentProgramming.Presentation.Model
 
     #region INotifyPropertyChanged
 
-    public event PropertyChangedEventHandler PropertyChanged;
+    public event PropertyChangedEventHandler? PropertyChanged;
 
     #endregion INotifyPropertyChanged
 
     #endregion IBall
 
+    #region IFrameUpdatableBall
+
+    public void UpdatePositionForRendering()
+    {
+      IPosition currentPosition = underneathBall.Position;
+
+      Top = currentPosition.y;
+      Left = currentPosition.x;
+    }
+
+    #endregion IFrameUpdatableBall
+
     #region private
+
+    private readonly LogicIBall underneathBall;
 
     private double TopBackingField;
     private double LeftBackingField;
-
-    private void NewPositionNotification(object sender, IPosition e)
-    {
-      Top = e.y; Left = e.x;
-    }
 
     private void RaisePropertyChanged([CallerMemberName] string propertyName = "")
     {
@@ -83,11 +94,15 @@ namespace TP.ConcurrentProgramming.Presentation.Model
 
     [Conditional("DEBUG")]
     internal void SetLeft(double x)
-    { Left = x; }
+    {
+      Left = x;
+    }
 
     [Conditional("DEBUG")]
     internal void SettTop(double x)
-    { Top = x; }
+    {
+      Top = x;
+    }
 
     #endregion testing instrumentation
   }

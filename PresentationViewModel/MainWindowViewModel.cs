@@ -49,6 +49,17 @@ namespace TP.ConcurrentProgramming.Presentation.ViewModel
       StartBallsCommand.RaiseCanExecuteChanged();
     }
 
+    public void UpdateBallPositionsForRendering()
+    {
+      foreach (ModelIBall ball in Balls)
+      {
+        if (ball is IFrameUpdatableBall frameUpdatableBall)
+        {
+          frameUpdatableBall.UpdatePositionForRendering();
+        }
+      }
+    }
+
     public ObservableCollection<ModelIBall> Balls { get; } = new ObservableCollection<ModelIBall>();
 
     public int BallCount

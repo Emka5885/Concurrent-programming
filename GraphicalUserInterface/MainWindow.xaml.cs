@@ -9,6 +9,7 @@
 
 using System;
 using System.Windows;
+using System.Windows.Media;
 using TP.ConcurrentProgramming.Presentation.ViewModel;
 
 namespace TP.ConcurrentProgramming.PresentationView
@@ -21,6 +22,7 @@ namespace TP.ConcurrentProgramming.PresentationView
     public MainWindow()
     {
       InitializeComponent();
+      CompositionTarget.Rendering += OnRendering;
     }
 
     /// <summary>
@@ -29,9 +31,20 @@ namespace TP.ConcurrentProgramming.PresentationView
     /// <param name="e">An <see cref="EventArgs"/> that contains the event data.</param>
     protected override void OnClosed(EventArgs e)
     {
+      CompositionTarget.Rendering -= OnRendering;
+
       if (DataContext is MainWindowViewModel viewModel)
         viewModel.Dispose();
+
       base.OnClosed(e);
+    }
+
+    private void OnRendering(object? sender, EventArgs e)
+    {
+      if (DataContext is MainWindowViewModel viewModel)
+      {
+        viewModel.UpdateBallPositionsForRendering();
+      }
     }
   }
 }

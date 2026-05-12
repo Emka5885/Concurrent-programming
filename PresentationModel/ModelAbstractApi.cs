@@ -19,6 +19,11 @@ namespace TP.ConcurrentProgramming.Presentation.Model
     double Diameter { get; }
   }
 
+  public interface IFrameUpdatableBall
+  {
+    void UpdatePositionForRendering();
+  }
+
   public abstract class ModelAbstractApi : IObservable<IBall>, IDisposable
   {
     public static ModelAbstractApi CreateModel()
