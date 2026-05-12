@@ -113,7 +113,10 @@ namespace TP.ConcurrentProgramming.Data.Test
       balls.Add(ballA);
       balls.Add(ballB);
 
-      ballA.ResolveCollisions();
+      foreach (Ball ball in balls)
+      {
+        ball.ResolveCollisions();
+      }
 
       Assert.AreEqual(-1.0, ballA.Velocity.x, 1e-10);
       Assert.AreEqual(1.0, ballB.Velocity.x, 1e-10);

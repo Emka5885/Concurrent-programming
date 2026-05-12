@@ -105,7 +105,7 @@ namespace TP.ConcurrentProgramming.Data
       {
         if (ReferenceEquals(this, other))
           continue;
-        if (GetHashCode() > other.GetHashCode())
+        if (allBalls.IndexOf(this) > allBalls.IndexOf(other))
           continue;
 
         double dx = other.position.x - position.x;
