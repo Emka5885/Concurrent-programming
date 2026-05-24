@@ -61,7 +61,10 @@
             BorderBrush="Green"
             Height="{Binding Height}"
             Width="{Binding Width}">
-            <ItemsControl ItemsSource="{Binding Balls}">
+            <ItemsControl x:Name="BilliardTable"
+              ItemsSource="{Binding Balls}"
+              Background="Transparent"
+              MouseMove="BilliardTable_MouseMove">
                 <ItemsControl.ItemsPanel>
                     <ItemsPanelTemplate>
                         <Canvas />

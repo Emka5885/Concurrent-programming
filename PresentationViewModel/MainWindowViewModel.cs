@@ -139,6 +139,14 @@ namespace TP.ConcurrentProgramming.Presentation.ViewModel
       }
     }
 
+    public void SetControlledBallPosition(double x, double y)
+    {
+      if (Disposed || !Started)
+        return;
+
+      ModelLayer.SetControlledBallPosition(x, y);
+    }
+
     public string CollisionCountText
     {
       get => collisionCountText;

@@ -67,6 +67,11 @@ namespace TP.ConcurrentProgramming.Presentation.Model
     public override double TotalMomentumY => layerBellow.TotalMomentum.y;
     public override double TotalKineticEnergy => layerBellow.TotalKineticEnergy;
 
+    public override void SetControlledBallPosition(double x, double y)
+    {
+      layerBellow.SetControlledBallPosition(x, y);
+    }
+
     private void StartHandler(BusinessLogic.IPosition position, BusinessLogic.IBall ball)
     {
       ModelBall newBall = new ModelBall(position.x, position.y, ball) { Diameter = ball.Diameter };

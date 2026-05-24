@@ -54,6 +54,8 @@ namespace TP.ConcurrentProgramming.BusinessLogic
 
     private readonly UnderneathLayerAPI layerBellow;
 
+    #endregion private
+
     public override double Width => layerBellow.Width;
     public override double Height => layerBellow.Height;
 
@@ -68,7 +70,10 @@ namespace TP.ConcurrentProgramming.BusinessLogic
 
     public override double TotalKineticEnergy => layerBellow.TotalKineticEnergy;
 
-    #endregion private
+    public override void SetControlledBallPosition(double x, double y)
+    {
+      layerBellow.SetControlledBallPosition(x, y);
+    }
 
     #region TestingInfrastructure
 

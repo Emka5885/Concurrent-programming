@@ -48,6 +48,8 @@ namespace TP.ConcurrentProgramming.Data
     public abstract IVector TotalMomentum { get; }
     public abstract double TotalKineticEnergy { get; }
 
+    public abstract void SetControlledBallPosition(double x, double y);
+
     #endregion private
   }
 

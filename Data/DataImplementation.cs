@@ -49,9 +49,22 @@ namespace TP.ConcurrentProgramming.Data
         if (Math.Abs(velocityX) < 0.1) velocityX = 2.0;
         if (Math.Abs(velocityY) < 0.1) velocityY = 2.0;
 
-        Vector startingVelocity = new(velocityX, velocityY);
+        bool isControlledByUser = i == 0;
 
-        Ball newBall = new(startingPosition, startingVelocity, diameter, BallsList, physicLock);
+        Vector startingVelocity = isControlledByUser ? new Vector(0.0, 0.0) : new Vector(velocityX, velocityY);
+
+        Ball newBall = new Ball(
+          startingPosition,
+          startingVelocity,
+          diameter,
+          BallsList,
+          physicLock,
+          isControlledByUser);
+
+        if (isControlledByUser)
+        {
+          controlledBall = newBall;
+        }
 
         int ballId = i;
 
@@ -119,6 +132,11 @@ namespace TP.ConcurrentProgramming.Data
 
     private DiagnosticLogger? diagnosticLogger;
 
+    private Ball? controlledBall;
+
+    private readonly Stopwatch controlledBallStopwatch = Stopwatch.StartNew();
+    private long lastControlledBallUpdateMs = 0;
+
     public override double Width { get; } = 420;
     public override double Height { get; } = 400;
 
@@ -138,6 +156,9 @@ namespace TP.ConcurrentProgramming.Data
 
         foreach (Ball ball in ballsSnapshot)
         {
+          if (ball.IsControlledByUser)
+            continue;
+
           totalX += ball.Velocity.x;
           totalY += ball.Velocity.y;
         }
@@ -161,6 +182,9 @@ namespace TP.ConcurrentProgramming.Data
 
         foreach (Ball ball in ballsSnapshot)
         {
+          if (ball.IsControlledByUser)
+            continue;
+
           double velocityX = ball.Velocity.x;
           double velocityY = ball.Velocity.y;
 
@@ -172,6 +196,38 @@ namespace TP.ConcurrentProgramming.Data
 
         return totalEnergy;
       }
+    }
+
+    public override void SetControlledBallPosition(double x, double y)
+    {
+      Ball? ball = controlledBall;
+
+      if (ball == null)
+        return;
+
+      double radius = ball.Diameter / 2.0;
+
+      double maxX = Width - ball.Diameter - 4 * 2;
+      double maxY = Height - ball.Diameter - 4 * 2;
+
+      double clampedX = Math.Clamp(x - radius, 0.0, maxX);
+      double clampedY = Math.Clamp(y - radius, 0.0, maxY);
+
+      long currentTimeMs = controlledBallStopwatch.ElapsedMilliseconds;
+      double elapsedTimeMs = currentTimeMs - lastControlledBallUpdateMs;
+
+      if (lastControlledBallUpdateMs == 0)
+      {
+        elapsedTimeMs = 16.0;
+      }
+
+      lastControlledBallUpdateMs = currentTimeMs;
+
+      ball.SetControlledPosition(new Vector(clampedX, clampedY), elapsedTimeMs);
+
+      ball.ResolveCollisions();
+
+      ball.Velocity = new Vector(0.0, 0.0);
     }
 
     private readonly object physicLock = new();

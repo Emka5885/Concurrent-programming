@@ -6,13 +6,20 @@ namespace TP.ConcurrentProgramming.Data
   {
     #region ctor
 
-    internal Ball(Vector initialPosition, Vector initialVelocity, double diameter, List<Ball> allBalls, object physicLock)
+    internal Ball(
+      Vector initialPosition,
+      Vector initialVelocity,
+      double diameter,
+      List<Ball> allBalls,
+      object physicLock,
+      bool isControlledByUser = false)
     {
       position = initialPosition;
       Velocity = initialVelocity;
       this.diameter = diameter;
       this.allBalls = allBalls;
       this.physicLock = physicLock;
+      IsControlledByUser = isControlledByUser;
     }
 
     #endregion
@@ -23,6 +30,8 @@ namespace TP.ConcurrentProgramming.Data
     public IVector Velocity { get; set; }
     public IVector Position => position;
     public double Diameter => diameter;
+
+    internal bool IsControlledByUser { get; }
 
     #endregion
 
@@ -40,6 +49,9 @@ namespace TP.ConcurrentProgramming.Data
 
     public void Start(double width, double height)
     {
+      if (IsControlledByUser)
+        return;
+
       ValidateVelocity(width, height);
 
       cts = new CancellationTokenSource();
@@ -105,6 +117,12 @@ namespace TP.ConcurrentProgramming.Data
     {
       foreach (Ball other in allBalls)
       {
+        if (IsControlledByUser || other.IsControlledByUser)
+        {
+          ResolveCollisionWithControlledBall(this, other);
+          continue;
+        }
+
         if (ReferenceEquals(this, other))
           continue;
         if (allBalls.IndexOf(this) > allBalls.IndexOf(other))
@@ -160,6 +178,102 @@ namespace TP.ConcurrentProgramming.Data
     }
 
 
+    private static void ResolveCollisionWithControlledBall(Ball firstBall, Ball secondBall)
+    {
+      Ball controlledBall = firstBall.IsControlledByUser ? firstBall : secondBall;
+      Ball normalBall = firstBall.IsControlledByUser ? secondBall : firstBall;
+
+      double controlledRadius = controlledBall.Diameter / 2.0;
+      double normalRadius = normalBall.Diameter / 2.0;
+
+      double controlledCenterX = controlledBall.Position.x + controlledRadius;
+      double controlledCenterY = controlledBall.Position.y + controlledRadius;
+
+      double normalCenterX = normalBall.Position.x + normalRadius;
+      double normalCenterY = normalBall.Position.y + normalRadius;
+
+      double dx = normalCenterX - controlledCenterX;
+      double dy = normalCenterY - controlledCenterY;
+
+      double distanceSquared = dx * dx + dy * dy;
+      double minimumDistance = controlledRadius + normalRadius;
+
+      if (distanceSquared >= minimumDistance * minimumDistance)
+        return;
+
+      double distance = Math.Sqrt(distanceSquared);
+
+      if (distance == 0.0)
+      {
+        dx = 1.0;
+        dy = 0.0;
+        distance = 1.0;
+      }
+
+      double normalX = dx / distance;
+      double normalY = dy / distance;
+
+      double penetration = minimumDistance - distance;
+
+      normalBall.Move(new Vector(
+        normalX * penetration,
+        normalY * penetration));
+
+      double relativeVelocityX = normalBall.Velocity.x - controlledBall.Velocity.x;
+      double relativeVelocityY = normalBall.Velocity.y - controlledBall.Velocity.y;
+
+      double velocityAlongNormal =
+        relativeVelocityX * normalX + relativeVelocityY * normalY;
+
+      if (velocityAlongNormal >= 0.0)
+        return;
+
+      double reflectedRelativeVelocityX =
+        relativeVelocityX - 2.0 * velocityAlongNormal * normalX;
+
+      double reflectedRelativeVelocityY =
+        relativeVelocityY - 2.0 * velocityAlongNormal * normalY;
+
+      const double controlledBallImpactFactor = 0.45;
+
+      normalBall.Velocity = new Vector(
+        controlledBall.Velocity.x * controlledBallImpactFactor + reflectedRelativeVelocityX,
+        controlledBall.Velocity.y * controlledBallImpactFactor + reflectedRelativeVelocityY);
+    }
+
+
+    internal void SetPosition(Vector newPosition)
+    {
+      position = newPosition;
+      RaiseNewPositionChangeNotification();
+    }
+
+    internal void SetControlledPosition(Vector newPosition, double elapsedTimeMs)
+    {
+      double safeElapsedTimeMs = Math.Max(1.0, elapsedTimeMs);
+      double velocityScale = TargetIntervalMs / safeElapsedTimeMs;
+
+      double velocityX = (newPosition.x - Position.x) * velocityScale;
+      double velocityY = (newPosition.y - Position.y) * velocityScale;
+
+      const double maxControlledVelocity = 6.0;
+
+      double speed = Math.Sqrt(velocityX * velocityX + velocityY * velocityY);
+
+      if (speed > maxControlledVelocity)
+      {
+        double scale = maxControlledVelocity / speed;
+
+        velocityX *= scale;
+        velocityY *= scale;
+      }
+
+      Velocity = new Vector(velocityX, velocityY);
+
+      position = newPosition;
+
+      RaiseNewPositionChangeNotification();
+    }
 
 
     internal void MoveBall(double width, double height)

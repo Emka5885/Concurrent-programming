@@ -9,6 +9,7 @@
 
 using System;
 using System.Windows;
+using System.Windows.Input;
 using System.Windows.Media;
 using TP.ConcurrentProgramming.Presentation.ViewModel;
 
@@ -45,6 +46,16 @@ namespace TP.ConcurrentProgramming.PresentationView
       {
         viewModel.UpdateBallPositionsForRendering();
       }
+    }
+
+    private void BilliardTable_MouseMove(object sender, MouseEventArgs e)
+    {
+      if (DataContext is not MainWindowViewModel viewModel)
+        return;
+
+      Point mousePosition = e.GetPosition(BilliardTable);
+
+      viewModel.SetControlledBallPosition(mousePosition.X, mousePosition.Y);
     }
   }
 }
