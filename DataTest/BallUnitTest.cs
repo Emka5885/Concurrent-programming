@@ -402,6 +402,56 @@ namespace TP.ConcurrentProgramming.Data.Test
       Assert.AreEqual(energyBefore, energyAfter, 1e-6);
     }
 
+    [TestMethod]
+    public void DiagnosticLoggingShouldNotAffectBallMovement()
+    {
+      object physicsLock = new();
+
+      List<Ball> ballsWithoutLogging = new();
+      List<Ball> ballsWithLogging = new();
+
+      Ball ballWithoutLogging = new Ball(
+        new Vector(10.0, 10.0),
+        new Vector(1.0, 0.5),
+        20.0,
+        ballsWithoutLogging,
+        physicsLock);
+
+      Ball ballWithLogging = new Ball(
+        new Vector(10.0, 10.0),
+        new Vector(1.0, 0.5),
+        20.0,
+        ballsWithLogging,
+        physicsLock);
+
+      ballsWithoutLogging.Add(ballWithoutLogging);
+      ballsWithLogging.Add(ballWithLogging);
+
+      int loggedPositionsCount = 0;
+
+      ballWithLogging.NewPositionNotification += (_, position) =>
+      {
+        string serializedDiagnosticData =$"{DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()};0;{position.x:0.000};{position.y:0.000};{ballWithLogging.Velocity.x:0.000};{ballWithLogging.Velocity.y:0.000}";
+
+        Assert.IsFalse(string.IsNullOrWhiteSpace(serializedDiagnosticData));
+        Interlocked.Increment(ref loggedPositionsCount);
+      };
+
+      for (int i = 0; i < 100; i++)
+      {
+        ballWithoutLogging.MoveBall(420.0, 400.0);
+        ballWithLogging.MoveBall(420.0, 400.0);
+      }
+
+      Assert.AreEqual(ballWithoutLogging.Position.x, ballWithLogging.Position.x, 1e-10);
+      Assert.AreEqual(ballWithoutLogging.Position.y, ballWithLogging.Position.y, 1e-10);
+
+      Assert.AreEqual(ballWithoutLogging.Velocity.x, ballWithLogging.Velocity.x, 1e-10);
+      Assert.AreEqual(ballWithoutLogging.Velocity.y, ballWithLogging.Velocity.y, 1e-10);
+
+      Assert.AreEqual(100, loggedPositionsCount);
+    }
+
     private static Ball CreateBall(
     double x,
     double y,
