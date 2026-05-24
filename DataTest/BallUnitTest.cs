@@ -73,6 +73,7 @@ namespace TP.ConcurrentProgramming.Data.Test
       Assert.AreSame(ball, capturedSender);
     }
 
+
     [TestMethod]
     public void StartThrowsExceptionWhenVelocityIsGreaterThanTableSize() // prędkość w 1 kroku, nie może być większa niż rozmiar planszy
     {
@@ -89,6 +90,44 @@ namespace TP.ConcurrentProgramming.Data.Test
         ball.ValidateVelocity(tableWidth, tableHeight);
       });
     }
+
+
+    [TestMethod]
+    public async Task SimulationShouldNotDeadlock()
+    {
+      object physicsLock = new();
+      List<Ball> balls = new();
+
+      for (int i = 0; i < 20; i++)
+      {
+        Ball ball = new Ball(
+            new Vector(i * 10.0, 0.0),
+            new Vector(1.0, 0.0),
+            20.0,
+            balls,
+            physicsLock);
+
+        balls.Add(ball);
+      }
+
+      foreach (Ball ball in balls)
+      {
+        ball.Start(500, 500);
+      }
+
+      await Task.Delay(1000);
+
+      bool allBallsStillMoving =
+          balls.All(ball => Math.Abs(ball.Velocity.x) > 0);
+
+      foreach (Ball ball in balls)
+      {
+        ball.Stop();
+      }
+
+      Assert.IsTrue(allBallsStillMoving);
+    }
+
 
     [TestMethod]
     public void CollisionExchangesVelocityBetweenTwoBalls()
@@ -186,6 +225,44 @@ namespace TP.ConcurrentProgramming.Data.Test
 
       Assert.AreEqual(energyBefore, energyAfter, 1e-10);
     }
+
+
+
+    [TestMethod]
+    public void CollisionConservesMomentum()
+    {
+      object physicsLock = new();
+      List<Ball> balls = new();
+
+      Ball ballA = new Ball(
+          new Vector(0, 0),
+          new Vector(1, 0),
+          20,
+          balls,
+          physicsLock);
+
+      Ball ballB = new Ball(
+          new Vector(19, 0),
+          new Vector(-1, 0),
+          20,
+          balls,
+          physicsLock);
+
+      balls.Add(ballA);
+      balls.Add(ballB);
+
+      double momentumBefore =
+          ballA.Velocity.x + ballB.Velocity.x;
+
+      ballA.ResolveCollisions();
+
+      double momentumAfter =
+          ballA.Velocity.x + ballB.Velocity.x;
+
+      Assert.AreEqual(momentumBefore, momentumAfter, 1e-10);
+    }
+
+
 
     [TestMethod]
     [Timeout(15000)]
