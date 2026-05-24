@@ -161,6 +161,8 @@ namespace TP.ConcurrentProgramming.BusinessLogic.Test
 
       public override void Start(int numberOfBalls, Action<IVector, Data.IBall> upperLayerHandler)
         => throw new NotImplementedException();
+
+      public override void SetControlledBallPosition(double x, double y){ }
     }
 
     private class DataLayerDisposeFixture : Data.DataAbstractAPI
@@ -178,6 +180,8 @@ namespace TP.ConcurrentProgramming.BusinessLogic.Test
 
       public override void Start(int numberOfBalls, Action<IVector, Data.IBall> upperLayerHandler)
         => throw new NotImplementedException();
+
+      public override void SetControlledBallPosition(double x, double y) { }
     }
 
     private class DataLayerStartFixture : Data.DataAbstractAPI
@@ -200,6 +204,8 @@ namespace TP.ConcurrentProgramming.BusinessLogic.Test
         NumberOfBallsCreated = numberOfBalls;
         upperLayerHandler(new VectorFixture(0.0, 0.0), new DataBallFixture());
       }
+
+      public override void SetControlledBallPosition(double x, double y) { }
     }
 
     private class DataLayerCoordinateFixture : Data.DataAbstractAPI
@@ -217,6 +223,8 @@ namespace TP.ConcurrentProgramming.BusinessLogic.Test
       {
         upperLayerHandler(new VectorFixture(11.0, 22.0), new DataBallFixture());
       }
+
+      public override void SetControlledBallPosition(double x, double y) { }
     }
 
     private class DataLayerEventFixture : Data.DataAbstractAPI
@@ -241,6 +249,8 @@ namespace TP.ConcurrentProgramming.BusinessLogic.Test
           upperLayerHandler(new VectorFixture(0.0, 0.0), ball);
         }
       }
+
+      public override void SetControlledBallPosition(double x, double y) { }
 
       internal void FirePositionOnAllBalls(double x, double y)
       {

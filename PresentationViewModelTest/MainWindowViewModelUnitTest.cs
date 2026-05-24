@@ -75,6 +75,8 @@ namespace TP.ConcurrentProgramming.Presentation.ViewModel.Test
 
       public override double TotalKineticEnergy => 0.0;
 
+      public override void SetControlledBallPosition(double x, double y) { }
+
       #endregion Test
 
       #region ModelAbstractApi
@@ -122,6 +124,8 @@ namespace TP.ConcurrentProgramming.Presentation.ViewModel.Test
       public override double TotalMomentumY => 0.0;
 
       public override double TotalKineticEnergy => 0.0;
+
+      public override void SetControlledBallPosition(double x, double y) { }
 
       #endregion Testing indicators
 

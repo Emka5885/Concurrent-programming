@@ -64,6 +64,8 @@ namespace TP.ConcurrentProgramming.Presentation.Model.Test
 
       public override double TotalKineticEnergy => 0.0;
 
+      public override void SetControlledBallPosition(double x, double y) { }
+
       #endregion testing instrumentation
 
       #region BusinessLogicAbstractAPI

@@ -129,5 +129,47 @@ namespace TP.ConcurrentProgramming.Data.Test
       Assert.ThrowsException<ArgumentNullException>(
         () => impl.Start(5, null!));
     }
+
+    [TestMethod]
+    public void ControlledBallShouldNotContributeToMomentumAndKineticEnergy()
+    {
+      DataImplementation data = new DataImplementation();
+      List<Ball> balls = new();
+
+      try
+      {
+        data.Start(2, (_, _) => { });
+
+        data.CheckBallsList(list =>
+        {
+          balls = list.Cast<Ball>().ToList();
+        });
+
+        foreach (Ball ball in balls)
+        {
+          ball.Stop();
+        }
+
+        Ball controlledBall = balls.Single(ball => ball.IsControlledByUser);
+        Ball normalBall = balls.Single(ball => !ball.IsControlledByUser);
+
+        controlledBall.Velocity = new Vector(100.0, 100.0);
+        normalBall.Velocity = new Vector(2.0, 3.0);
+
+        IVector totalMomentum = data.TotalMomentum;
+        double totalKineticEnergy = data.TotalKineticEnergy;
+
+        Assert.AreEqual(2.0, totalMomentum.x, 1e-10);
+        Assert.AreEqual(3.0, totalMomentum.y, 1e-10);
+
+        double expectedEnergy = 0.5 * (2.0 * 2.0 + 3.0 * 3.0);
+
+        Assert.AreEqual(expectedEnergy, totalKineticEnergy, 1e-10);
+      }
+      finally
+      {
+        data.Dispose();
+      }
+    }
   }
 }
