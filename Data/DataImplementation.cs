@@ -9,6 +9,7 @@
 //_____________________________________________________________________________________________________________________________________
 
 using System.Diagnostics;
+using System.IO;
 
 namespace TP.ConcurrentProgramming.Data
 {
@@ -22,6 +23,12 @@ namespace TP.ConcurrentProgramming.Data
         throw new ObjectDisposedException(nameof(DataImplementation));
       if (upperLayerHandler == null)
         throw new ArgumentNullException(nameof(upperLayerHandler));
+
+      string logsDirectory = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Logs");
+      Directory.CreateDirectory(logsDirectory);
+      string logFilePath = Path.Combine(logsDirectory, "diagnostic_log.txt");
+      Debug.WriteLine($"Diagnostic log path: {logFilePath}");
+      diagnosticLogger = new DiagnosticLogger(logFilePath);
 
       Random random = new Random();
 
@@ -45,6 +52,15 @@ namespace TP.ConcurrentProgramming.Data
         Vector startingVelocity = new(velocityX, velocityY);
 
         Ball newBall = new(startingPosition, startingVelocity, diameter, BallsList, physicLock);
+
+        int ballId = i;
+
+        newBall.NewPositionNotification += (_, position) =>
+        {
+          // czas_zdarzenia; numer_kulki; pozycja_X; pozycja_Y; prędkość_X; prędkość_Y
+          diagnosticLogger?.Log($"{DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()};{ballId};{position.x:0.000};{position.y:0.000};{newBall.Velocity.x:0.000};{newBall.Velocity.y:0.000}");
+        };
+
         lock (ballsListLock)
         {
           BallsList.Add(newBall);
@@ -74,6 +90,9 @@ namespace TP.ConcurrentProgramming.Data
           {
             BallsList.Clear();
           }
+
+          diagnosticLogger?.Dispose();
+          diagnosticLogger = null;
         }
 
         Disposed = true;
@@ -97,6 +116,8 @@ namespace TP.ConcurrentProgramming.Data
 
     private List<Ball> BallsList = [];
     private readonly object ballsListLock = new object();
+
+    private DiagnosticLogger? diagnosticLogger;
 
     public override double Width { get; } = 420;
     public override double Height { get; } = 400;
