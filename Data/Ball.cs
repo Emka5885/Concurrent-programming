@@ -40,41 +40,43 @@ namespace TP.ConcurrentProgramming.Data
 
     public void Start(double width, double height)
     {
+      ValidateVelocity(width, height);
+
       cts = new CancellationTokenSource();
       CancellationToken token = cts.Token;
 
-      ValidateVelocity(width, height);
-
       Task.Run(async () =>
       {
-        // Stopwatch wysoka rozdzielczość
         Stopwatch sw = Stopwatch.StartNew();
+
         int tickNumber = 0;
+
+        long previousTickMs = sw.ElapsedMilliseconds - TargetIntervalMs;
 
         while (!token.IsCancellationRequested)
         {
           tickNumber++;
 
-          // Kiedy powinien nastąpić ten tick (w ms od startu)
           long expectedMs = (long)tickNumber * TargetIntervalMs;
 
-          lock (physicLock)
-          {
-            MoveBall(width, height);
-            ResolveCollisions();
-          }
+          long currentTickMs = sw.ElapsedMilliseconds;
+          double elapsedTimeMs = currentTickMs - previousTickMs;
+          previousTickMs = currentTickMs;
+
+          elapsedTimeMs = Math.Clamp(elapsedTimeMs, 1.0, MaxCumulativeLatencyMs);
+
+          MoveBall(width, height, elapsedTimeMs);
+          ResolveCollisions();
 
           long nowMs = sw.ElapsedMilliseconds;
           long waitMs = expectedMs - nowMs;
 
-          // Łączne spóźnienie względem harmonogramu
           long latency = nowMs - expectedMs;
           if (latency > MaxCumulativeLatencyMs)
           {
-            // Narastające opóźnienie przekroczyło próg — resetuj
             sw.Restart();
             tickNumber = 0;
-            throw new InvalidOperationException($"Ball physics is lagging behind schedule by {latency} ms.");
+            previousTickMs = sw.ElapsedMilliseconds - TargetIntervalMs;
           }
 
           int delayMs = (int)Math.Max(1, waitMs);
@@ -111,7 +113,7 @@ namespace TP.ConcurrentProgramming.Data
         double dx = other.position.x - position.x;
         double dy = other.position.y - position.y;
         double distanceSq = dx * dx + dy * dy;
-        double radii = Diameter; // suma promieni = 10 + 10
+        double radii = Diameter;
 
         if (distanceSq < radii * radii)
         {
@@ -128,7 +130,6 @@ namespace TP.ConcurrentProgramming.Data
 
           double velAlongNormal = rvx * nx + rvy * ny;
 
-          // jeśli się oddalają - ignoruj
           if (velAlongNormal > 0)
             continue;
 
@@ -163,27 +164,32 @@ namespace TP.ConcurrentProgramming.Data
 
     internal void MoveBall(double width, double height)
     {
-      double deltaX = Velocity.x;
-      double deltaY = Velocity.y;
+      MoveBall(width, height, TargetIntervalMs);
+    }
+
+    internal void MoveBall(double width, double height, double elapsedTimeMs)
+    {
+      double movementScale = elapsedTimeMs / TargetIntervalMs;
+
+      double deltaX = Velocity.x * movementScale;
+      double deltaY = Velocity.y * movementScale;
+
       double nextX = Position.x + deltaX;
       double nextY = Position.y + deltaY;
-      double maxX = width - Diameter - 4 * 2;
-      double maxY = height - Diameter - 4 * 2;
 
-      if (nextX < 0 || nextX > maxX)
+      if (nextX <= 0 || nextX >= width - Diameter - 4 * 2)
       {
+        Velocity = new Vector(-Velocity.x, Velocity.y);
         deltaX = -deltaX;
-        Velocity = new Vector(deltaX, deltaY);
-        nextX = Position.x + deltaX;
-      }
-      if (nextY < 0 || nextY > maxY)
-      {
-        deltaY = -deltaY;
-        Velocity = new Vector(deltaX, deltaY);
-        nextY = Position.y + deltaY;
       }
 
-      Move(new Vector(nextX - Position.x, nextY - Position.y));
+      if (nextY <= 0 || nextY >= height - Diameter - 4 * 2)
+      {
+        Velocity = new Vector(Velocity.x, -Velocity.y);
+        deltaY = -deltaY;
+      }
+
+      Move(new Vector(deltaX, deltaY));
     }
 
     internal void ValidateVelocity(double width, double height)

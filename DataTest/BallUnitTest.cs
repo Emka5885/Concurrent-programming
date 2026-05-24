@@ -188,6 +188,71 @@ namespace TP.ConcurrentProgramming.Data.Test
     }
 
     [TestMethod]
+    [Timeout(15000)]
+    public async Task EachBallExecutesApproximatelyEqualNumberOfTimesOver10Seconds()
+    {
+      const int ballCount = 5;
+      object physicsLock = new();
+      List<Ball> balls = new();
+      int[] tickCounts = new int[ballCount];
+      int countingEnabled = 0;
+
+      for (int i = 0; i < ballCount; i++)
+      {
+        int index = i;
+
+        Ball ball = new Ball(
+          new Vector(i * 50.0, 50.0),
+          new Vector(1.0, 0.0),
+          20.0,
+          balls,
+          physicsLock);
+
+        ball.NewPositionNotification += (_, _) =>
+        {
+          if (Volatile.Read(ref countingEnabled) == 1)
+          {
+            Interlocked.Increment(ref tickCounts[index]);
+          }
+        };
+
+        balls.Add(ball);
+      }
+
+      try
+      {
+        foreach (Ball ball in balls)
+        {
+          ball.Start(420, 400);
+        }
+
+        Volatile.Write(ref countingEnabled, 1);
+
+        await Task.Delay(TimeSpan.FromSeconds(10));
+
+        Volatile.Write(ref countingEnabled, 0);
+      }
+      finally
+      {
+        foreach (Ball ball in balls)
+        {
+          ball.Stop();
+        }
+      }
+
+      int min = tickCounts.Min();
+      int max = tickCounts.Max();
+
+      Assert.IsTrue(
+        min > 0,
+        $"Co najmniej jedna kulka nie wykonała się ani razu. Counts: {string.Join(", ", tickCounts)}");
+
+      Assert.IsTrue(
+        max - min <= 1,
+        $"Kulki nie wykonały się równomiernie. Counts: {string.Join(", ", tickCounts)}, min={min}, max={max}.");
+    }
+
+    [TestMethod]
     public void ThreeBallCollisionTransfersVelocity() // 3 balls in one line
     {
       object physicsLock = new();
