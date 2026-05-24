@@ -210,7 +210,7 @@ namespace TP.ConcurrentProgramming.Data
       double maxX = Width - ball.Diameter - 4 * 2;
       double maxY = Height - ball.Diameter - 4 * 2;
 
-      double clampedX = Math.Clamp(x - 3*radius, 0.0, maxX);
+      double clampedX = Math.Clamp(x - radius, 0.0, maxX);
       double clampedY = Math.Clamp(y - radius, 0.0, maxY);
 
       long currentTimeMs = controlledBallStopwatch.ElapsedMilliseconds;

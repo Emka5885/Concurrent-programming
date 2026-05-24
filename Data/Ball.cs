@@ -115,64 +115,67 @@ namespace TP.ConcurrentProgramming.Data
 
     internal void ResolveCollisions()
     {
-      foreach (Ball other in allBalls)
+      lock (physicLock)
       {
-        if (IsControlledByUser || other.IsControlledByUser)
+        foreach (Ball other in allBalls)
         {
-          ResolveCollisionWithControlledBall(this, other);
-          continue;
-        }
-
-        if (ReferenceEquals(this, other))
-          continue;
-        if (allBalls.IndexOf(this) > allBalls.IndexOf(other))
-          continue;
-
-        double dx = other.position.x - position.x;
-        double dy = other.position.y - position.y;
-        double distanceSq = dx * dx + dy * dy;
-        double radii = Diameter;
-
-        if (distanceSq < radii * radii)
-        {
-          double distance = Math.Sqrt(distanceSq);
-
-          if (distance == 0)
+          if (ReferenceEquals(this, other))
             continue;
 
-          double nx = dx / distance;
-          double ny = dy / distance;
-
-          double rvx = other.Velocity.x - Velocity.x;
-          double rvy = other.Velocity.y - Velocity.y;
-
-          double velAlongNormal = rvx * nx + rvy * ny;
-
-          if (velAlongNormal > 0)
+          if (IsControlledByUser || other.IsControlledByUser)
+          {
+            ResolveCollisionWithControlledBall(this, other);
+            continue;
+          }
+          if (allBalls.IndexOf(this) > allBalls.IndexOf(other))
             continue;
 
-          double restitution = 1;
+          double dx = other.position.x - position.x;
+          double dy = other.position.y - position.y;
+          double distanceSq = dx * dx + dy * dy;
+          double radii = Diameter;
 
-          double impulse = -(1 + restitution) * velAlongNormal / 2.0;
+          if (distanceSq < radii * radii)
+          {
+            double distance = Math.Sqrt(distanceSq);
 
-          double impulseX = impulse * nx;
-          double impulseY = impulse * ny;
+            if (distance == 0)
+              continue;
 
-          Velocity = new Vector(
-              Velocity.x - impulseX,
-              Velocity.y - impulseY);
+            double nx = dx / distance;
+            double ny = dy / distance;
 
-          other.Velocity = new Vector(
-              other.Velocity.x + impulseX,
-              other.Velocity.y + impulseY);
+            double rvx = other.Velocity.x - Velocity.x;
+            double rvy = other.Velocity.y - Velocity.y;
+
+            double velAlongNormal = rvx * nx + rvy * ny;
+
+            if (velAlongNormal > 0)
+              continue;
+
+            double restitution = 1;
+
+            double impulse = -(1 + restitution) * velAlongNormal / 2.0;
+
+            double impulseX = impulse * nx;
+            double impulseY = impulse * ny;
+
+            Velocity = new Vector(
+                Velocity.x - impulseX,
+                Velocity.y - impulseY);
+
+            other.Velocity = new Vector(
+                other.Velocity.x + impulseX,
+                other.Velocity.y + impulseY);
 
 
-          double normal = Math.Sqrt(dx * dx + dy * dy);
+            double normal = Math.Sqrt(dx * dx + dy * dy);
 
-          double penetration = radii - distance;
+            double penetration = radii - distance;
 
-          position = new Vector(position.x - penetration * (dx / normal) * 0.5, position.y - penetration * (dy / normal) * 0.5);
-          other.position = new Vector(other.position.x + penetration * (dx / normal) * 0.5, other.position.y + penetration * (dy / normal) * 0.5);
+            position = new Vector(position.x - penetration * (dx / normal) * 0.5, position.y - penetration * (dy / normal) * 0.5);
+            other.position = new Vector(other.position.x + penetration * (dx / normal) * 0.5, other.position.y + penetration * (dy / normal) * 0.5);
+          }
         }
       }
     }
